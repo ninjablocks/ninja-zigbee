@@ -1,0 +1,16 @@
+{
+  "name": "ninja-zigbee",
+  "version": "0.0.0",
+  "description": "Ninja Zigbee Module",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+
+  ],
+  "dependencies": {
+  },
+  "license": "MIT",
+  "config":{}
+}
