@@ -17,28 +17,27 @@ function zigbeeModule(opts,app) {
   var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
-    console.log('Zigbee stdout: ' + data);
-  });  
+    this._app.log.info('(ZigBee) %s', data);
+  }.bind(this));
 
   // Listen for errors
   rpcServer.stderr.on('data',function(err) {
-    console.log('Zigbee Error: '+err);
-    self._app.log.error('Zigbee Error: '+err);
-    
-  });  
-  
+    this._app.log.error('(ZigBee) %s', err);
+
+  }.bind(this));
+
   rpcServer.on('exit', function (code) {
-    console.log('Zigbee process exited with code ' + code);
-  });  
-  
+    this._app.log.error('(ZigBee)  process exited with code %s', code);
+  }.bind(this));
+
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
   app.on('client::up', function() {
       begin.call(self);
-  });
+  }.bind(this));
 };
 
-module.exports = zigbeeModule
+module.exports = zigbeeModule;
 
 util.inherits(zigbeeModule,Stream);
 
@@ -55,16 +54,14 @@ function begin() {
   // Create a new connection to the SRPC server: port 0x2be3 for ZLL
   // TODO: incorporate this into the ZigbeeClient
   var socket = net.connect(11235,function() {
-    self._app.log.info('Connected to TI ZLL Server');    
-    console.log('Connected to TI ZLL Server');
-    client.discoverDevices();  
-  });
+    self._app.log.info('(ZigBee) Connected to TI ZLL Server');
+    client.discoverDevices();
+  }.bind(this));
 
   // Listen for errors on this connections
   socket.on('error',function(err) {
-    console.log('Zigbee Error: '+err);
-    self._app.log.error('Zigbee Error: '+err);
-  });
+    self._app.log.error('(ZigBee) %s',err);
+  }.bind(this));
 
   // Node warns after 11 listeners have been attached
   // Increase the max listeners as we bind ~3 events per n devices
@@ -81,12 +78,10 @@ function begin() {
       // Setup the pipe between the device and socket
       device.pipe(socket);
 
-      console.log('Found new ZigBee Device Profile:'+device.profileId);
       // Register this device by wrapping it in a NinjaDevice
       // Quick hack to only register an HA device
       if (device.profileId == 0x0104) {
         self._app.log.info('Found new ZigBee Device '+device.type);
-        console.log('Found new ZigBee Device '+device.type);
         self.emit('register',new NinjaLight(device));
       }
     });
