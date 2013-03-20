@@ -1,6 +1,6 @@
 {
   "name": "ninja-zigbee",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Ninja Zigbee Module",
   "main": "index.js",
   "scripts": {
