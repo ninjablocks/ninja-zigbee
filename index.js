@@ -17,7 +17,7 @@ function zigbeeModule(opts,app) {
 
   rpcServer.stdout.on('data', function (data) {
 
-    this._app.log.info('(ZigBee) %s', data);
+    this._app.log.debug('(ZigBee) %s', data);
   }.bind(this));
 
   // Listen for errors
@@ -27,6 +27,7 @@ function zigbeeModule(opts,app) {
   }.bind(this));
 
   rpcServer.on('exit', function (code) {
+
     this._app.log.error('(ZigBee)  process exited with code %s', code);
   }.bind(this));
 
