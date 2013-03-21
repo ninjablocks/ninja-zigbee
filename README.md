@@ -43,7 +43,7 @@ git checkout develop
 ### Clone module
 
 ```
-git clone https://github.com/ninjablocks/client-zigbee /opt/ninja/modules/ZigbeeLL
+git clone https://github.com/ninjablocks/ninja-zigbee /opt/ninja/drivers/ninja-zigbee
 ```
 
 ### Start client
