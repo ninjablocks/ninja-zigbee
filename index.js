@@ -17,7 +17,7 @@ function zigbeeModule(opts,app) {
 
   rpcServer.stdout.on('data', function (data) {
 
-    this._app.log.debug('(ZigBee) %s', data);
+    this._app.log.info('(ZigBee) %s', data);
   }.bind(this));
 
   // Listen for errors
@@ -77,7 +77,7 @@ function begin() {
     .on('device',function(device) {
 
       // Setup the pipe between the device and socket
-      device.pipe(socket);
+      device.pipe(this.socket);
 
       // Register this device by wrapping it in a NinjaDevice
       // Quick hack to only register an HA device
