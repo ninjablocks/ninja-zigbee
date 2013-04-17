@@ -14,6 +14,12 @@
     "Zigbee",
     "Light Link"
   ],
+  "os": [ 
+    "linux" 
+  ],
+  "cpu": [ 
+    "arm" 
+  ],
   "dependencies": {
   },
   "license": "MIT",
