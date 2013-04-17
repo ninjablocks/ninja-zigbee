@@ -1,13 +1,18 @@
 {
   "name": "ninja-zigbee",
   "version": "0.0.2",
-  "description": "Ninja Zigbee Module",
+  "description": "Ninja ZigBee driver for the TI CC2531 programmed as a Zigbee Network Processor",
   "main": "index.js",
   "scripts": {
     "test": "npm test"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ninjablocks/ninja-zigbee"
+  },  
   "keywords": [
-
+    "Zigbee",
+    "Light Link"
   ],
   "dependencies": {
   },
