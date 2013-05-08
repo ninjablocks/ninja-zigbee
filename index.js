@@ -4,7 +4,10 @@ var net = require('net')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
-
+  , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
+  , ZigbeeSmartPlug = require(__dirname+'/lib/ZigbeeSmartPlug')
+  , ZigbeeTempSensor = require(__dirname+'/lib/ZigbeeTempSensor')
+    
 function zigbeeModule(opts,app) {
 
   var self = this;
@@ -81,10 +84,33 @@ function begin() {
       device.pipe(this.socket);
 
       // Register this device by wrapping it in a NinjaDevice
-      // Quick hack to only register an HA device
-      if (device.profileId == 0x0104) {
-        this._app.log.info('Found new ZigBee Device '+device.type);
+      if ( (device.type == "Color Dimmable Light")  ||
+           (device.type == "ZLL Color Light") )
+      {
+        this._app.log.info('Found new ZigBee Light '+device.type);
         this.emit('register',new NinjaLight(this._app.log,device));
       }
+      //on/off switch
+      /*else if (device.type == "On/Off Switch") 
+      {
+        this._app.log.info('Found new ZigBee Switch '+device.type);
+        this.emit('register',new ZigbeeActuator(this._app.log,device));
+      }*/ 
+      else if (device.type == "Mains Power Outlet") 
+      {
+        this._app.log.info('Found new ZigBee Smart Plug '+device.type);
+        this.emit('register',new ZigbeeSmartPlug(this._app.log,device));
+      }  
+      else if (device.type == "Temperature Sensor") 
+      {
+        this._app.log.info('Found new ZigBee Temp Sensor '+device.type);
+        this.emit('register',new ZigbeeTempSensor(this._app.log,device));
+      }                                   
+      else
+      {
+        this._app.log.info('Found new unknown ZigBee device '+device.type);
+      }
+        
+                  
     }.bind(this));
 };
