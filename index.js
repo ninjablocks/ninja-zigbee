@@ -7,7 +7,7 @@ var net = require('net')
   , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
   , ZigbeeSmartPlug = require(__dirname+'/lib/ZigbeeSmartPlug')
   , ZigbeeTempSensor = require(__dirname+'/lib/ZigbeeTempSensor')
-    
+
 function zigbeeModule(opts,app) {
 
   var self = this;
@@ -80,8 +80,10 @@ function begin() {
     .pipe(client)
     .on('device',function(device) {
 
-      // Setup the pipe between the device and socket
-      device.pipe(this.socket);
+      // Setup a 2-way pipe between the device and socket
+      device
+        .pipe(this.socket)
+        .pipe(device);
 
       // Register this device by wrapping it in a NinjaDevice
       if ( (device.type == "Color Dimmable Light")  ||
@@ -91,26 +93,26 @@ function begin() {
         this.emit('register',new NinjaLight(this._app.log,device));
       }
       //on/off switch
-      /*else if (device.type == "On/Off Switch") 
+      /*else if (device.type == "On/Off Switch")
       {
         this._app.log.info('Found new ZigBee Switch '+device.type);
         this.emit('register',new ZigbeeActuator(this._app.log,device));
-      }*/ 
-      else if (device.type == "Mains Power Outlet") 
+      }*/
+      else if (device.type == "Mains Power Outlet")
       {
         this._app.log.info('Found new ZigBee Smart Plug '+device.type);
         this.emit('register',new ZigbeeSmartPlug(this._app.log,device));
-      }  
-      else if (device.type == "Temperature Sensor") 
+      }
+      else if (device.type == "Temperature Sensor")
       {
         this._app.log.info('Found new ZigBee Temp Sensor '+device.type);
         this.emit('register',new ZigbeeTempSensor(this._app.log,device));
-      }                                   
+      }
       else
       {
         this._app.log.info('Found new unknown ZigBee device '+device.type);
       }
-        
-                  
+
+
     }.bind(this));
 };
