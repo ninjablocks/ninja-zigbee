@@ -3,10 +3,9 @@ var net = require('net')
   , Stream = require('stream')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
+  , ZigBeeLight = require(__dirname+'/lib/ZigbeeLight')
+
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
-  , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
-  , ZigbeeSmartPlug = require(__dirname+'/lib/ZigbeeSmartPlug')
-  , ZigbeeTempSensor = require(__dirname+'/lib/ZigbeeTempSensor')
 
 function zigbeeModule(opts,app) {
 
@@ -91,6 +90,7 @@ function begin() {
       {
         this._app.log.info('Found new ZigBee Light '+device.type);
         this.emit('register',new NinjaLight(this._app.log,device));
+
       }
       //on/off switch
       /*else if (device.type == "On/Off Switch")
