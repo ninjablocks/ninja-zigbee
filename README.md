@@ -5,7 +5,7 @@
 
 ## Driver Architecture
 [Architecture]: http://f.cl.ly/items/3i3K0W3C0T3q040G2J1S/d511389c.png "Zigbee Driver Architecture"
-
+![alt text][Architecture]
 ## Setup instructions
 
 ### Burn Ninja Image
