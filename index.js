@@ -3,7 +3,7 @@ var net = require('net')
   , Stream = require('stream')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
-  , ZigBeeLight = require(__dirname+'/lib/ZigbeeLight')
+  , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
 
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
 
@@ -15,7 +15,7 @@ function zigbeeModule(opts,app) {
   this._opts = opts;
 
   // Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
+  var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM1"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
 
@@ -80,9 +80,8 @@ function begin() {
     .on('device',function(device) {
 
       // Setup a 2-way pipe between the device and socket
-      device
-        .pipe(this.socket)
-        .pipe(device);
+      device.pipe(this.socket).pipe(client)
+
 
       // Register this device by wrapping it in a NinjaDevice
       if ( (device.type == "Color Dimmable Light")  ||
@@ -101,7 +100,7 @@ function begin() {
       else if (device.type == "Mains Power Outlet")
       {
         this._app.log.info('Found new ZigBee Smart Plug '+device.type);
-        this.emit('register',new ZigbeeSmartPlug(this._app.log,device));
+        this.emit('register',new NinjaSmartPlug(this._app.log,device));
       }
       else if (device.type == "Temperature Sensor")
       {
