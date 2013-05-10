@@ -20,7 +20,7 @@ function zigbeeModule(opts,app) {
 
   rpcServer.stdout.on('data', function (data) {
 
-    this._app.log.debug('(ZigBee) %s', data);
+    this._app.log.info('(ZigBee) %s', data);
   }.bind(this));
 
   // Listen for errors
