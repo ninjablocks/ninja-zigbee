@@ -6,7 +6,7 @@ var net = require('net')
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
   , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
   , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
-  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')    
+  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')
   , NinjaTempSensor = require(__dirname+'/lib/NinjaTempSensor')
 
 function zigbeeModule(opts,app) {
@@ -101,7 +101,7 @@ function begin() {
       {
         this._app.log.info('Found new ZigBee Smart Plug '+device.type);
         this.emit('register',new NinjaSmartPlug(this._app.log,device));
-        //this.emit('register',new NinjaRelay(this._app.log,device));        
+        this.emit('register',new NinjaRelay(this._app.log,device));
       }
       else if (device.type == "Temperature Sensor")
       {
