@@ -3,9 +3,11 @@ var net = require('net')
   , Stream = require('stream')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
-  , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
-
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
+  , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
+  , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
+  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')    
+  , NinjaTempSensor = require(__dirname+'/lib/NinjaTempSensor')
 
 function zigbeeModule(opts,app) {
 
@@ -15,11 +17,11 @@ function zigbeeModule(opts,app) {
   this._opts = opts;
 
   // Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM1"],  { cwd:__dirname+'/bin/' });
+  var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
 
-    this._app.log.debug('(ZigBee) %s', data);
+    this._app.log.info('(ZigBee) %s', data);
   }.bind(this));
 
   // Listen for errors
@@ -79,17 +81,15 @@ function begin() {
     .pipe(client)
     .on('device',function(device) {
 
-      // Setup a 2-way pipe between the device and socket
-      device.pipe(this.socket).pipe(client)
-
+      // Setup the pipe between the device and socket
+      device.socket = this.socket;
 
       // Register this device by wrapping it in a NinjaDevice
       if ( (device.type == "Color Dimmable Light")  ||
            (device.type == "ZLL Color Light") )
       {
-        this._app.log.info('Found new ZigBee Light '+device.type);
+        this._app.log.info('Found new ZigBee Light: ' +device.type +' ' +device.nwkAddr +':' +device.endPoint );
         this.emit('register',new NinjaLight(this._app.log,device));
-
       }
       //on/off switch
       /*else if (device.type == "On/Off Switch")
@@ -101,11 +101,12 @@ function begin() {
       {
         this._app.log.info('Found new ZigBee Smart Plug '+device.type);
         this.emit('register',new NinjaSmartPlug(this._app.log,device));
+        //this.emit('register',new NinjaRelay(this._app.log,device));        
       }
       else if (device.type == "Temperature Sensor")
       {
         this._app.log.info('Found new ZigBee Temp Sensor '+device.type);
-        this.emit('register',new ZigbeeTempSensor(this._app.log,device));
+        this.emit('register',new NinjaTempSensor(this._app.log,device));
       }
       else
       {
