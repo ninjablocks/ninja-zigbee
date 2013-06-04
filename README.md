@@ -7,49 +7,13 @@
 
 ### Burn Ninja Image
 ```
-https://s3.amazonaws.com/ninjablocks/images/beagle/titanium.img.zip
-```
-
-### Upgrade node to v0.8.x
-```
-cd /tmp
-wget https://s3.amazonaws.com/ninjablocks/binaries/beagle/node-v0.8.17.tgz
-tar -zxvf node-v0.8.17.tgz 
-sudo mv node /usr/bin/
-sudo ln -s /usr/bin/node /usr/bin/nodejs
-sudo add-apt-repository ppa:chris-lea/node.js
-sudo apt-get update
-sudo apt-get install npm
-```
-
-### Setup Necessary Shared Libs
-```
-sudo apt-get install libc6-armel-cross
-sudo ln -sf /usr/arm-linux-gnueabi/lib/ld-linux.so.3 /lib/ld-linux.so.3
-sudo ln -sf /usr/arm-linux-gnueabi/lib/libc.so.6 /lib/libc.so.6
-```
-
-### Clone client and install module
-```
-cd /opt
-sudo rm -rf ninja
-sudo git clone https://github.com/ninjablocks/client.git ninja
-sudo chown -R ubuntu ninja
-cd ninja
-git checkout develop
-./bin/install.sh
+https://s3.amazonaws.com/ninjablocks/images/beagle/palladium.img.zip
 ```
 
 ### Clone module
 
 ```
 git clone https://github.com/ninjablocks/ninja-zigbee /opt/ninja/drivers/ninja-zigbee
-```
-
-### Start client
-```
-export NODE_ENV=hacking
-node client.js
 ```
 
 ### Pair with Ninja Cloud
