@@ -13,7 +13,7 @@ https://s3.amazonaws.com/ninjablocks/images/beagle/palladium.img.zip
 ### Clone module
 
 ```
-git clone https://github.com/ninjablocks/ninja-zigbee /opt/ninja/drivers/ninja-zigbee
+git clone -b zigbee-lighting https://github.com/ninjablocks/ninja-zigbee /opt/ninja/drivers/ninja-zigbee
 ```
 
 ### Pair with Ninja Cloud
