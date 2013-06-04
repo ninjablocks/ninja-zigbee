@@ -81,10 +81,12 @@ function begin() {
       device.pipe(this.socket);
 
       // Register this device by wrapping it in a NinjaDevice
-      // Quick hack to only register an HA device
-      if (device.profileId == 0x0104) {
-        this._app.log.info('Found new ZigBee Device '+device.type);
+      if ( (device.type == "Color Dimmable Light")  ||
+           (device.type == "Color Light") ||
+           (device.type == "Extended Color Light"))
+      {
+        this._app.log.info('Found new ZigBee Light: ' +device.type +' ' +device.nwkAddr +':' +device.endPoint );
         this.emit('register',new NinjaLight(this._app.log,device));
-      }
+      }      
     }.bind(this));
 };
