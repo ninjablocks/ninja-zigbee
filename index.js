@@ -3,13 +3,7 @@ var net = require('net')
   , Stream = require('stream')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
-  , NinjaLight = require(__dirname+'/lib/NinjaLight')
-  , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
-  , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
-  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')
-  , NinjaTempSensor = require(__dirname+'/lib/NinjaTempSensor')
-  , NinjaHumiditySensor = require(__dirname+'/lib/NinjaHumiditySensor')
-  , NinjaAisZoneAlarm = require(__dirname+'/lib/NinjaAisZoneAlarm')
+  , _ = require('underscore');
 
 function zigbeeModule(opts,app) {
 
@@ -40,7 +34,7 @@ function zigbeeModule(opts,app) {
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
   app.on('client::up', begin.bind(this));
-};
+}
 
 module.exports = zigbeeModule;
 
@@ -52,6 +46,7 @@ util.inherits(zigbeeModule,Stream);
  * @param  {Object} cloud Methods inherited from the parent of the module
  */
 function begin() {
+  var self = this;
 
   if (this.socket) {
     // We already have a connection
@@ -59,78 +54,88 @@ function begin() {
   }
   // Create a new client
   var client = new ZigBeeClient(this._app.log);
-  // Create a new connection to the SRPC server: port 0x2be3 for ZLL
-  // TODO: incorporate this into the ZigbeeClient
-  this.socket = net.connect(11235,function() {
-    this._app.log.info('(ZigBee) Connected to TI ZLL Server');
-    client.discoverDevices();
-  }.bind(this));
 
-  // Listen for errors on this connections
-  this.socket.on('error',function(err) {
-    this._app.log.error('(ZigBee) %s',err);
-  }.bind(this));
+  var seenAddresses = {};
 
-  // Node warns after 11 listeners have been attached
-  // Increase the max listeners as we bind ~3 events per n devices
-  this.socket.setMaxListeners(999);
-
-  // Setup the bi-directional pipe between the client and socket.
-  // Additionally setup the pipe between any new devices and the socket
-  // once they are discovered.
-  client
-    .pipe(this.socket)
-    .pipe(client)
-    .on('device',function(device) {
-
-      // Setup the pipe between the device and socket
-      device.socket = this.socket;
-
-      // Register this device by wrapping it in a NinjaDevice
-      if ( (device.type == "Color Dimmable Light")  ||
-           (device.type == "ZLL Color Light") )
-      {
-        this._app.log.info('Found new ZigBee Light: ' +device.type +' ' +device.nwkAddr +':' +device.endPoint );
-        this.emit('register',new NinjaLight(this._app.log,device));
-      }
-      //on/off switch
-/*
-      else if (device.type == "On/Off Switch")
-      {
-        this._app.log.info('Found new ZigBee Switch '+device.type);
-        this.emit('register',new ZigbeeActuator(this._app.log,device));
-      }
-*/
-      else if (device.type == "Power Meter")
-      {
-        this._app.log.info('Found new ZigBee Smart Plug '+device.type);
-        this.emit('register',new NinjaSmartPlug(this._app.log,device));
-      }
-      else if (device.type == "Mains Power Outlet")
-      {
-        this._app.log.info('Found new ZigBee Relay '+device.type);
-        this.emit('register',new NinjaRelay(this._app.log,device));
-      }
-      else if (device.type == "Temperature Sensor")
-      {
-        this._app.log.info('Found new ZigBee Temp Sensor '+device.type);
-        this.emit('register',new NinjaTempSensor(this._app.log,device));
-      }
-      else if (device.type == "Humidity Sensor")
-      {
-        this._app.log.info('Found new ZigBee Humidity Sensor '+device.type);
-        this.emit('register',new NinjaHumiditySensor(this._app.log,device));
-      }
-      else if (device.type == "IAS Zone")
-      {
-        this._app.log.info('Found new ZigBee IAS Zone '+device.type);
-        this.emit('register',new NinjaAisZoneAlarm(this._app.log,device));
-      }
-      else
-      {
-        this._app.log.info('Found new unknown ZigBee device '+device.type);
-      }
-
-
+  client.on('ready', function() {
+    // Create a new connection to the SRPC server: port 0x2be3 for ZLL
+    // TODO: incorporate this into the ZigbeeClient
+    this.socket = net.connect(11235,function() {
+      this._app.log.info('(ZigBee) Connected to TI ZLL Server');
+      setInterval(function() {
+        client.discoverDevices();
+      }, 1000);
     }.bind(this));
+
+    // Listen for errors on this connections
+    this.socket.on('error',function(err) {
+      this._app.log.error('(ZigBee) %s',err);
+    }.bind(this));
+
+    // Node warns after 11 listeners have been attached
+    // Increase the max listeners as we bind ~3 events per n devices
+    this.socket.setMaxListeners(999);
+
+    // Setup the bi-directional pipe between the client and socket.
+    // Additionally setup the pipe between any new devices and the socket
+    // once they are discovered.
+    client
+      .pipe(this.socket)
+      .pipe(client)
+      .on('device',function(address, headers, zigbeeDevice) {
+
+        if (seenAddresses[address]) {
+          return; // XXX: Why do i get told about it so many times?
+        }
+
+        self._app.log.info('Device found', zigbeeDevice.name + ' (' + address + ')');
+
+        // Forward all relevant messages from zigbee to our new devices
+        var devices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
+        _.each(devices, function(device) {
+          client.on('message', function(incomingAddress, reader) {
+            if (incomingAddress == address) {
+              device.emit('message', address, reader);
+            }
+          });
+        });
+
+        seenAddresses[address] = true;
+      })
+      .on('message',function(address, reader) {
+
+        self._app.log.info('Message from (' + address + ')');
+
+      }.bind(this));
+
+  }.bind(this));
+
+}
+
+// TODO: move this out of here!
+// TODO: this should have the profile id, not just device id?
+var mappings = {
+    "Light" : ["0x0100","0x0103"],
+    "Relay" : ["0x0009"]
 };
+
+var drivers = {};
+
+_.each(mappings, function(deviceIds, driverName) {
+  drivers[driverName] = require('devices/' + driverName);
+});
+
+function createNinjaDevices(address, headers, zigbeeDevice, socket) {
+
+  var devices = [];
+
+  _.each(mappings, function(deviceIds, driverName) {
+    if (deviceIds.indexOf(zigbeeDevice.id) > -1) {
+      var device = new drivers[driverName](address, headers, zigbeeDevice, socket);
+      device.driverName = driverName;
+      devices.push(device);
+    }
+  });
+
+  return devices;
+}
