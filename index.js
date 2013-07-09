@@ -6,10 +6,10 @@ var net = require('net')
   , NinjaLight = require(__dirname+'/lib/NinjaLight')
   , ZigbeeActuator = require(__dirname+'/lib/ZigbeeActuator')
   , NinjaSmartPlug = require(__dirname+'/lib/NinjaSmartPlug')
-  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')    
+  , NinjaRelay = require(__dirname+'/lib/NinjaRelay')
   , NinjaTempSensor = require(__dirname+'/lib/NinjaTempSensor')
   , NinjaHumiditySensor = require(__dirname+'/lib/NinjaHumiditySensor')
-  , NinjaAisZoneAlarm = require(__dirname+'/lib/NinjaAisZoneAlarm') 
+  , NinjaAisZoneAlarm = require(__dirname+'/lib/NinjaAisZoneAlarm')
 
 function zigbeeModule(opts,app) {
 
@@ -18,14 +18,14 @@ function zigbeeModule(opts,app) {
   this._app = app;
   this._opts = opts;
 
-  // Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
-/*
+  /*// Spawn the SRPC Server
+  var rpcServer = spawn(__dirname+'/bin/zllController.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
+
   rpcServer.stdout.on('data', function (data) {
 
-    this._app.log.info('(ZigBee) %s', data);
+    this._app.log.info('(ZigBeeaaa) %s', data);
   }.bind(this));
-*/
+
   // Listen for errors
   rpcServer.stderr.on('data',function(err) {
 
@@ -35,7 +35,7 @@ function zigbeeModule(opts,app) {
   rpcServer.on('exit', function (code) {
 
     this._app.log.error('(ZigBee)  process exited with code %s', code);
-  }.bind(this));
+  }.bind(this));*/
 
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
@@ -94,22 +94,22 @@ function begin() {
         this.emit('register',new NinjaLight(this._app.log,device));
       }
       //on/off switch
-/*      
+/*
       else if (device.type == "On/Off Switch")
       {
         this._app.log.info('Found new ZigBee Switch '+device.type);
         this.emit('register',new ZigbeeActuator(this._app.log,device));
       }
-*/      
+*/
       else if (device.type == "Power Meter")
       {
         this._app.log.info('Found new ZigBee Smart Plug '+device.type);
-        this.emit('register',new NinjaSmartPlug(this._app.log,device));      
+        this.emit('register',new NinjaSmartPlug(this._app.log,device));
       }
       else if (device.type == "Mains Power Outlet")
       {
         this._app.log.info('Found new ZigBee Relay '+device.type);
-        this.emit('register',new NinjaRelay(this._app.log,device));        
+        this.emit('register',new NinjaRelay(this._app.log,device));
       }
       else if (device.type == "Temperature Sensor")
       {
@@ -120,12 +120,12 @@ function begin() {
       {
         this._app.log.info('Found new ZigBee Humidity Sensor '+device.type);
         this.emit('register',new NinjaHumiditySensor(this._app.log,device));
-      }      
+      }
       else if (device.type == "IAS Zone")
       {
         this._app.log.info('Found new ZigBee IAS Zone '+device.type);
         this.emit('register',new NinjaAisZoneAlarm(this._app.log,device));
-      }      
+      }
       else
       {
         this._app.log.info('Found new unknown ZigBee device '+device.type);
