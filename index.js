@@ -62,8 +62,11 @@ function begin() {
     // TODO: incorporate this into the ZigbeeClient
     this.socket = net.connect(11235,function() {
       this._app.log.info('(ZigBee) Connected to TI ZLL Server');
-      setInterval(function() {
+      setTimeout(function() {
         client.discoverDevices();
+      }, 4000);
+      setInterval(function() {
+        //client.discoverDevices();
       }, 1000);
     }.bind(this));
 
