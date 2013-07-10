@@ -3,7 +3,8 @@ var net = require('net')
   , Stream = require('stream')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
-  , _ = require('underscore');
+  , _ = require('underscore')
+  , log4js = require('log4js');
 
 function zigbeeModule(opts,app) {
 
@@ -12,24 +13,23 @@ function zigbeeModule(opts,app) {
   this._app = app;
   this._opts = opts;
 
-  /*// Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllController.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
+  this.log = log4js.getLogger('ZB');
+
+  // Spawn the SRPC Server
+  var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
-
-    this._app.log.info('(ZigBeeaaa) %s', data);
+    this.log.trace('Process > ' + data);
   }.bind(this));
 
   // Listen for errors
   rpcServer.stderr.on('data',function(err) {
-
-    this._app.log.error('(ZigBee) %s', err);
+    this.log.error(err);
   }.bind(this));
 
   rpcServer.on('exit', function (code) {
-
-    this._app.log.error('(ZigBee)  process exited with code %s', code);
-  }.bind(this));*/
+    this.log.error('Process exited with code %s', code);
+  }.bind(this));
 
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
@@ -53,7 +53,7 @@ function begin() {
     return;
   }
   // Create a new client
-  var client = new ZigBeeClient(this._app.log);
+  var client = new ZigBeeClient();
 
   var seenAddresses = {};
 
@@ -61,10 +61,10 @@ function begin() {
     // Create a new connection to the SRPC server: port 0x2be3 for ZLL
     // TODO: incorporate this into the ZigbeeClient
     this.socket = net.connect(11235,function() {
-      this._app.log.info('(ZigBee) Connected to TI ZLL Server');
+      this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
         client.discoverDevices();
-      }, 4000);
+      }, 1000);
       setInterval(function() {
         //client.discoverDevices();
       }, 1000);
@@ -72,7 +72,7 @@ function begin() {
 
     // Listen for errors on this connections
     this.socket.on('error',function(err) {
-      this._app.log.error('(ZigBee) %s',err);
+      this.log.error(err);
     }.bind(this));
 
     // Node warns after 11 listeners have been attached
@@ -91,7 +91,7 @@ function begin() {
           return; // XXX: Why do i get told about it so many times?
         }
 
-        self._app.log.info('Device found', zigbeeDevice.name + ' (' + address + ')');
+        self.log.info('Device found', zigbeeDevice.name + ' (' + address + ')');
 
         // Forward all relevant messages from zigbee to our new devices
         var devices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
@@ -107,7 +107,7 @@ function begin() {
       })
       .on('message',function(address, reader) {
 
-        self._app.log.info('Message from (' + address + ')');
+        self.log.info('Message from (' + address + ')');
 
       }.bind(this));
 
@@ -119,7 +119,8 @@ function begin() {
 // TODO: this should have the profile id, not just device id?
 var mappings = {
     "Light" : ["0x0100","0x0103"],
-    "Relay" : ["0x0009"]
+    "Relay" : ["0x0009"],
+    "LightSensor" : ["0x0106"]
 };
 
 var drivers = {};
@@ -134,8 +135,7 @@ function createNinjaDevices(address, headers, zigbeeDevice, socket) {
 
   _.each(mappings, function(deviceIds, driverName) {
     if (deviceIds.indexOf(zigbeeDevice.id) > -1) {
-      var device = new drivers[driverName](address, headers, zigbeeDevice, socket);
-      device.driverName = driverName;
+      var device = new drivers[driverName](address, headers, zigbeeDevice, socket, driverName);
       devices.push(device);
     }
   });

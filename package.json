@@ -28,7 +28,8 @@
     "async": "~0.2.9",
     "underscore": "~1.5.1",
     "prettyjson": "~0.8.1",
-    "log4js": "~0.6.6"
+    "log4js": "~0.6.6",
+    "buffermaker": "0.0.10"
   },
   "license": "MIT",
   "config": {}
