@@ -26,10 +26,6 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
     }.bind(this));
 }
 
-Device.prototype.sendDeviceState = function(cb) {
-    this.sendCommand(P.RPCS_SET_DEV_STATE, cb);
-};
-
 Device.prototype.onCommand = function(command, cb) {
 
     this.on('message', function(address, reader) {
