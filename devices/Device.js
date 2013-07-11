@@ -65,6 +65,10 @@ Device.prototype.sendMessage = function(buffer) {
     this._socket.write(buffer);
 };
 
+Device.prototype.write = function() {
+  this.log.warn('Write attemped on a non-writable device.');
+};
+
 module.exports = Device;
 
 
