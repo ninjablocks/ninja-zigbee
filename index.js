@@ -12,28 +12,26 @@ function zigbeeModule(opts,app) {
 
   this._app = app;
   this._opts = opts;
-
   this.log = log4js.getLogger('ZB');
 
   // Spawn the SRPC Server
   var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
-    this.log.trace('Process > ' + data);
-  }.bind(this));
+    self.log.trace('rpc: ' + data);
+  });
 
-  // Listen for errors
-  rpcServer.stderr.on('data',function(err) {
-    this.log.error(err);
-  }.bind(this));
+  rpcServer.stderr.on('data', function (data) {
+    self.log.error('rpc: ' + data);
+  });
 
-  rpcServer.on('exit', function (code) {
-    this.log.error('Process exited with code %s', code);
-  }.bind(this));
+  rpcServer.on('close', function (code) {
+    self.log.error('rpc exited with code ' + code);
+  });
 
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
-  app.on('client::up', begin.bind(this));
+  app.on('client::up', this.begin.bind(this));
 }
 
 module.exports = zigbeeModule;
@@ -45,7 +43,7 @@ util.inherits(zigbeeModule,Stream);
  *
  * @param  {Object} cloud Methods inherited from the parent of the module
  */
-function begin() {
+zigbeeModule.prototype.begin = function() {
   var self = this;
 
   if (this.socket) {
@@ -63,14 +61,14 @@ function begin() {
     this.socket = net.connect(11235,function() {
       this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
-        client.discoverDevices();
+        //client.discoverDevices();
       }, 1000);
       setInterval(function() {
-        //client.discoverDevices();
+        client.discoverDevices();
       }, 1000);
     }.bind(this));
 
-    // Listen for errors on this connections
+    // Listen for errors on this connection
     this.socket.on('error',function(err) {
       this.log.error(err);
     }.bind(this));
@@ -88,14 +86,17 @@ function begin() {
       .on('device',function(address, headers, zigbeeDevice) {
 
         if (seenAddresses[address]) {
-          return; // XXX: Why do i get told about it so many times?
+          return;
         }
+        seenAddresses[address] = true;
 
         self.log.info('Device found', zigbeeDevice.name + ' (' + address + ')');
 
         // Forward all relevant messages from zigbee to our new devices
         var devices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
         _.each(devices, function(device) {
+          self.emit('register', device);
+
           client.on('message', function(incomingAddress, reader) {
             if (incomingAddress == address) {
               device.emit('message', address, reader);
@@ -113,7 +114,7 @@ function begin() {
 
   }.bind(this));
 
-}
+};
 
 // TODO: move this out of here!
 // TODO: this should have the profile id, not just device id?

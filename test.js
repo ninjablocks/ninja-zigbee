@@ -19,15 +19,33 @@ var d = new (require('index'))(opts, {
     token: 'XXX'
 });
 
-var driver;
-
 d.emit = function(channel, value) {
     console.log('Driver.emit', channel, value);
     if (channel == 'register') {
-        driver = value;
+        var device = value;
         value.emit = function(channel, value) {
             console.log('Device.emit', channel, value);
         };
+
+        if (device.D == 238) { // relay
+            var last = true;
+            setInterval(function() {
+                device.write(last = !last);
+            }, 2000);
+        }
+
+        if (device.D == 224) { // light
+            setInterval(function() {
+                device.write({
+                    bri: Math.floor(Math.random() * 256),
+                    hue: Math.floor(Math.random() * 65535),
+                    sat: Math.floor(Math.random() * 256),
+                    on: Math.random() > 0.5,
+                    transitionTime: Math.floor(Math.random() * 2000)
+                });
+            }, 2000);
+        }
+
     }
 };
 
@@ -35,9 +53,3 @@ d.save = function() {
     console.log('Saved opts', opts);
 };
 
-
-var last = "0";
-setInterval(function() {
-    last = last=='1'?"0":"1";
-    driver && driver.write(last);
-}, 2000);
