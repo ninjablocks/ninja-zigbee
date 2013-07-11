@@ -10,6 +10,8 @@ function Light(address, headers, zigbeeDevice, socket) {
     this.writable = true;
     this.V = 0;
     this.D = 224; // Light
+
+    this.write({hue:12,sat:212,bri:99,on:true,transitionTime:50});
 }
 
 Light.prototype.write = function(data) {
@@ -18,23 +20,21 @@ Light.prototype.write = function(data) {
         data = JSON.parse(data);
     }
 
-    var hue = dataObject.hue >> 8,
-        saturation = dataObject.sat,
-        level = dataObject.bri;
+    var hue = data.hue >> 8;
 
-    this.sendMessage(P.RPCS_SET_DEV_COLOR, function(msg) {
+    this.sendCommand(P.RPCS_SET_DEV_COLOR, function(msg) {
         msg.UInt8(hue);
-        msg.UInt8(saturation);
-        msg.UInt16LE(transitionTime);
+        msg.UInt8(data.sat);
+        msg.UInt16LE(data.transitionTime || 10);
     });
 
-    this.sendMessage(P.RPCS_SET_DEV_LEVEL, function(msg) {
-        msg.UInt8(level);
-        msg.UInt16LE(transitionTime);
+    this.sendCommand(P.RPCS_SET_DEV_LEVEL, function(msg) {
+        msg.UInt8(data.bri);
+        msg.UInt16LE(data.transitionTime || 10);
     });
 
-    this.sendMessage(P.RPCS_SET_DEV_STATE, function(msg) {
-        msg.UInt8(dataObject.on? 0xFF : 0x0);
+    this.sendCommand(P.RPCS_SET_DEV_STATE, function(msg) {
+        msg.UInt8(data.on? 0xFF : 0x0);
     });
 };
 

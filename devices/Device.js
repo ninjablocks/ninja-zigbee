@@ -30,6 +30,16 @@ Device.prototype.sendDeviceState = function(cb) {
     this.sendCommand(P.RPCS_SET_DEV_STATE, cb);
 };
 
+Device.prototype.onCommand = function(command, cb) {
+
+    this.on('message', function(address, reader) {
+        if (reader.vars.command == command) {
+            cb(address, reader);
+        }
+    });
+
+};
+
 Device.prototype.sendCommand = function(command, cb) {
 
     var msg = new BufferMaker();
@@ -42,16 +52,21 @@ Device.prototype.sendCommand = function(command, cb) {
     msg.UInt8(this._headers.endPoint);
     msg.UInt16LE(0); //pad out pan ID
 
-    cb(msg); // Let the calling concrete class set its own state
+    if (cb) {
+      cb(msg); // Let the calling concrete class set its own state
+    }
 
     // TODO: Set correct message length
 
-    this.log.trace('Sending command : ' + command + ' message', msg.make().toJSON());
-    this.sendMessage(msg);
+    var buffer = msg.make();
+    buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
+
+    this.log.trace('Sending command : ' + command + ' message', buffer.toJSON());
+    this.sendMessage(buffer);
 };
 
-Device.prototype.sendMessage = function(msg) {
-    this._socket.write(msg.make());
+Device.prototype.sendMessage = function(buffer) {
+    this._socket.write(buffer);
 };
 
 module.exports = Device;
