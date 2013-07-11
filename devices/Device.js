@@ -5,11 +5,9 @@ var util = require('util');
 var stream = require('stream');
 var BufferMaker = require('buffermaker');
 var log4js = require('log4js');
+var P = require('../lib/protocol');
 
 util.inherits(Device, stream);
-
-var RPCS_SET_DEV_STATE = 0x82;
-var Addr16Bit = 2;
 
 function Device(address, headers, zigbeeDevice, socket, driverName) {
 
@@ -29,7 +27,7 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
 }
 
 Device.prototype.sendDeviceState = function(cb) {
-    this.sendCommand(RPCS_SET_DEV_STATE, cb);
+    this.sendCommand(P.RPCS_SET_DEV_STATE, cb);
 };
 
 Device.prototype.sendCommand = function(command, cb) {
@@ -37,7 +35,7 @@ Device.prototype.sendCommand = function(command, cb) {
     var msg = new BufferMaker();
     msg.UInt8(command);
     msg.UInt8(13); // TODO: AUTO SET THIS!
-    msg.UInt8(Addr16Bit);
+    msg.UInt8(P.Addr16Bit);
     msg.UInt16LE(this._headers.networkAddress);
     msg.UInt32LE(0); // pad for an ieee addr size;
     msg.UInt16LE(0); // pad for an ieee addr size;

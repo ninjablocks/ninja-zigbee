@@ -1,16 +1,15 @@
 var util = require('util');
 var Device = require('./Device');
+var P = require('../lib/protocol');
 
 util.inherits(Light, Device);
-
-var RPCS_SET_DEV_STATE      = 0x82;
-var RPCS_SET_DEV_LEVEL      = 0x83;
-var RPCS_SET_DEV_COLOR      = 0x84;
 
 function Light(address, headers, zigbeeDevice, socket) {
     Light.super_.apply(this, arguments);
 
     this.writable = true;
+    this.V = 0;
+    this.D = 224; // Light
 }
 
 Light.prototype.write = function(data) {
@@ -23,18 +22,18 @@ Light.prototype.write = function(data) {
         saturation = dataObject.sat,
         level = dataObject.bri;
 
-    this.sendMessage(RPCS_SET_DEV_COLOR, function(msg) {
+    this.sendMessage(P.RPCS_SET_DEV_COLOR, function(msg) {
         msg.UInt8(hue);
         msg.UInt8(saturation);
         msg.UInt16LE(transitionTime);
     });
 
-    this.sendMessage(RPCS_SET_DEV_LEVEL, function(msg) {
+    this.sendMessage(P.RPCS_SET_DEV_LEVEL, function(msg) {
         msg.UInt8(level);
         msg.UInt16LE(transitionTime);
     });
 
-    this.sendMessage(RPCS_SET_DEV_STATE, function(msg) {
+    this.sendMessage(P.RPCS_SET_DEV_STATE, function(msg) {
         msg.UInt8(dataObject.on? 0xFF : 0x0);
     });
 };

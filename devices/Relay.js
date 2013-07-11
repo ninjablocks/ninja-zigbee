@@ -7,6 +7,8 @@ function Relay(address, headers, zigbeeDevice, socket) {
     Relay.super_.apply(this, arguments);
 
     this.writable = true;
+    this.V = 0;
+    this.D = 238;
 
     this.on('message', function(address, reader) {
         // TODO: Do something with the incoming zigbee message
