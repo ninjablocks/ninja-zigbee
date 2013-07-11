@@ -36,6 +36,16 @@ Device.prototype.onCommand = function(command, cb) {
 
 };
 
+Device.prototype.hasServerCluster = function(cluster) {
+    for (var x in this._zigbeeDevice.server) {
+        var c = this._zigbeeDevice.server[x];
+        if (c.name == cluster) {
+            return true;
+        }
+    }
+    return false;
+};
+
 Device.prototype.sendCommand = function(command, cb) {
 
     var msg = new BufferMaker();
