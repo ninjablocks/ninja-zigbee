@@ -1,7 +1,7 @@
 
 var opts = {};
 
-var d = new (require('index'))(opts, {
+var d = new (require('./index'))(opts, {
     on : function(x,cb){
         setTimeout(cb, 100);
     },
@@ -20,8 +20,9 @@ var d = new (require('index'))(opts, {
 });
 
 d.emit = function(channel, value) {
-    console.log('Driver.emit', channel, value);
+    console.log('Driver.emit', channel);
     if (channel == 'register') {
+        console.log('Registered device : ', value.name);
         var device = value;
         value.emit = function(channel, value) {
             console.log('Device.emit', channel, value);
