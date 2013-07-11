@@ -231,7 +231,7 @@
     <cluster id="0x0204" name="Thermostat User Interface Configuration"/>
 
     <!-- Lighting functional domain -->
-    <cluster id="0x0300" name="Color control"/>
+    <cluster id="0x0300" name="Color Control"/>
 
     <cluster id="0x0301" name="Ballast Configuration"/>
 
