@@ -1,32 +1,17 @@
 var util = require('util');
-var Device = require('./Device');
+var Read32Device = require('./Read32Device');
 var P = require('../lib/protocol');
 
-util.inherits(Humidity, Device);
+util.inherits(Driver, Read32Device);
 
-function Humidity(address, headers, zigbeeDevice, socket) {
-    Power.super_.apply(this, arguments);
+function Driver(address, headers, zigbeeDevice, socket) {
+    this._incomingCommand = P.RPCS_GET_HUMID_READING;
+    this._outgoingCommand = P.RPCS_HUMID_READING;
 
-    this.writable = false;
     this.V = 0;
     this.D = 8; //Humidity Sensor
 
-    this.onCommand(P.RPCS_HUMID_READING, this.onReading.bind(this));
-
-    setInterval(this.pollForReading.bind(this), 2000);
+    Driver.super_.apply(this, arguments);
 }
 
-Humidity.prototype.onReading = function(address, reader) {
-    reader.word32lu('value');
-
-    var value = reader.vars.value / 100;
-    this.log.debug('Got reading', value);
-
-    this.emit('data', value);
-};
-
-Humidity.prototype.pollForReading = function() {
-    this.sendCommand(P.RPCS_GET_HUMID_READING);
-};
-
-module.exports = Humidity;
+module.exports = Driver;
