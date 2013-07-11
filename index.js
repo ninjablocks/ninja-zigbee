@@ -116,26 +116,32 @@ zigbeeModule.prototype.begin = function() {
 
 };
 
-// TODO: move this out of here!
-// TODO: this should have the profile id, not just device id?
+// TODO: move this out of here! into device drivers?
 var mappings = {
-    "Light" : ["0x0100","0x0103"],
-    "Relay" : ["0x0009"],
-    "LightSensor" : ["0x0106"]
+    "Light" : ["0xc05e:0x0000", "0xc05e:0x0100","0xc05e:0x0200"],
+    "Relay" : ["0x0104:0x0009"],
+    "LightSensor" : ["0x0104:0x0106"]
 };
 
 var drivers = {};
 
 _.each(mappings, function(deviceIds, driverName) {
-  drivers[driverName] = require('devices/' + driverName);
+  drivers[driverName] = require('./devices/' + driverName);
 });
 
 function createNinjaDevices(address, headers, zigbeeDevice, socket) {
 
+  function h(v) {
+    v = '000' + v.toString(16);
+    return '0x' + v.substring(v.length-4);
+  }
+
+  var id = h(headers.profileId) + ':' + h(headers.deviceId);
+
   var devices = [];
 
   _.each(mappings, function(deviceIds, driverName) {
-    if (deviceIds.indexOf(zigbeeDevice.id) > -1) {
+    if (deviceIds.indexOf(id) > -1) {
       var device = new drivers[driverName](address, headers, zigbeeDevice, socket, driverName);
       devices.push(device);
     }
@@ -143,3 +149,11 @@ function createNinjaDevices(address, headers, zigbeeDevice, socket) {
 
   return devices;
 }
+
+/*
+
+  var BufferMaker = require('buffermaker');
+  var msg = new BufferMaker();
+  msg.UInt16LE(512);
+  console.log("XXX : " + msg.make().toJSON());
+*/
