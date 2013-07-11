@@ -22,7 +22,7 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
     this.log.trace('Initialised');
 
     this.on('message', function(address, reader) {
-        this.log.debug("Incoming message", JSON.stringify(reader.vars));
+        this.log.debug("Incoming command", P.inverted[reader.vars.command], JSON.stringify(reader.vars));
     }.bind(this));
 }
 
@@ -61,7 +61,7 @@ Device.prototype.sendCommand = function(command, cb) {
     var buffer = msg.make();
     buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
 
-    this.log.trace('Sending command : ' + command + ' message', buffer.toJSON());
+    this.log.trace('Sending command : ' + P.inverted[command] + ' message', buffer.toJSON());
     this.sendMessage(buffer);
 };
 
