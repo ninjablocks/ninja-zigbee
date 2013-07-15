@@ -14,7 +14,7 @@ function Driver(address, headers, zigbeeDevice, socket) {
     Driver.super_.apply(this, arguments);
 }
 
-Driver.prototype.readZBValue = function(reader) {
+Driver.prototype.readZigbeeValue = function(reader) {
     reader.word32lu('value');
     return reader.vars.value / 100;
 };

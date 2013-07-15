@@ -90,7 +90,7 @@ zigbeeModule.prototype.begin = function() {
         }
         seenAddresses[address] = true;
 
-        self.log.info('Device found', zigbeeDevice.name + ' (' + address + ')');
+        self.log.info('Device found', zigbeeDevice.name + ' ' + zigbeeDevice.profile + ':' + zigbeeDevice.id + ' (' + address + ')');
 
         // Forward all relevant messages from zigbee to our new devices
         var devices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
@@ -114,8 +114,9 @@ var mappings = {
     "Light" : ["0xc05e:0x0000", "0xc05e:0x0100","0xc05e:0x0200"],
     "Relay" : ["0x0104:0x0009"],
     "Power" : ["0x0104:0x0009"],
+    "Temperature" : ["0x0104:0x0302"],
     "LightSensor" : ["0x0104:0x0106"],
-    "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001"]
+    "OnOffSwitch" : ["0x0104:0x0402", "0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001"]
 };
 
 var drivers = {};

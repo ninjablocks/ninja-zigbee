@@ -10,7 +10,7 @@ function OnOffSwitch(address, headers, zigbeeDevice, socket) {
 
     this.writable = false;
     this.V = 0;
-    this.D = 6;
+    this.D = 244; // state device
 
     this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {
         reader.word8('value');

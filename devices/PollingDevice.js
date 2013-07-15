@@ -19,7 +19,7 @@ function PollingDevice(address, headers, zigbeeDevice, socket, driverName) {
 }
 
 PollingDevice.prototype.onReading = function(address, reader) {
-    var value = this.read(reader.vars.value);
+    var value = this.readZigbeeValue(reader.vars.value);
     this.log.debug('Got reading', value);
 
     this.emit('data', value);
