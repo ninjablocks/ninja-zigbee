@@ -1,8 +1,8 @@
 var util = require('util');
-var Read32Device = require('./Read32Device');
+var PollingDevice = require('./PollingDevice');
 var P = require('../lib/protocol');
 
-util.inherits(Driver, Read32Device);
+util.inherits(Driver, PollingDevice);
 
 function Driver(address, headers, zigbeeDevice, socket) {
     this._incomingCommand = P.RPCS_GET_HUMID_READING;
@@ -13,5 +13,10 @@ function Driver(address, headers, zigbeeDevice, socket) {
 
     Driver.super_.apply(this, arguments);
 }
+
+Driver.prototype.readZBValue = function(reader) {
+    reader.word32lu('value');
+    return reader.vars.value / 100;
+};
 
 module.exports = Driver;

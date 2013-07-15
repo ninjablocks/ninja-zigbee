@@ -10,12 +10,14 @@ function Relay(address, headers, zigbeeDevice, socket) {
     this.writable = true;
     this.V = 0;
     this.D = 238;
-
 }
 
 Relay.prototype.write = function(data) {
-    data = (data=== true || data === 1 || data === '1');
+
+    data = (data=== true || data === 1 || data === '1' || data === 'on'); // jic
+
     this.log.info('Turning ' + (data?'on':'off'));
+
     this.sendCommand(P.RPCS_SET_DEV_STATE, function(msg) {
         msg.UInt8(data? 0xFF : 0x0);
     });
