@@ -89,6 +89,12 @@
 			</server>
 		</device>
 
+		<device id="0x0402" name="IAS Zone">
+			<server>
+				<clusterRef name="IAS Zone" />
+			</server>
+		</device>
+
 		<!--  Indesit CECED applicances -->
 
 		<device id="0x0A00" name="White Goods">
