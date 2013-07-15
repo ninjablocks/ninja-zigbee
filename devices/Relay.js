@@ -1,18 +1,25 @@
 var util = require('util');
-var Device = require('./Device');
+var PollingDevice = require('./PollingDevice');
 var P = require('../lib/protocol');
 
-util.inherits(Relay, Device);
+util.inherits(Driver, PollingDevice);
 
-function Relay(address, headers, zigbeeDevice, socket) {
-    Relay.super_.apply(this, arguments);
+function Driver(address, headers, zigbeeDevice, socket) {
+    this._incomingCommand = P.RPCS_GET_DEV_STATE_RSP;
+    this._outgoingCommand = P.RPCS_GET_DEV_STATE;
 
-    this.writable = true;
     this.V = 0;
-    this.D = 238;
+    this.D = 238; // relay
+
+    Driver.super_.apply(this, arguments);
 }
 
-Relay.prototype.write = function(data) {
+Driver.prototype.readZigbeeValue = function(reader) {
+    reader.word8('value');
+    return reader.vars.value === 0?0:1;
+};
+
+Driver.prototype.write = function(data) {
 
     data = (data=== true || data === 1 || data === '1' || data === 'on'); // jic
 
@@ -23,4 +30,4 @@ Relay.prototype.write = function(data) {
     });
 };
 
-module.exports = Relay;
+module.exports = Driver;
