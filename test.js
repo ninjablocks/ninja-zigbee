@@ -24,13 +24,10 @@ d.emit = function(channel, value) {
     if (channel == 'register') {
         console.log('Registered device : ', value.name);
         var device = value;
-        device.on('data', function(data) {
-	    console.log('Device emitted data - ' + data)
-	});
-	/*value.emit = function(channel, value) {
 
-            console.log('Device.emit', channel, value);
-        };*/
+        device.on('data', function(data) {
+            console.log('Device emitted data - ' + data);
+        });
 
         if (device.D == 238) { // relay
             var last = true;
