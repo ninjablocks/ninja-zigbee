@@ -97,20 +97,13 @@ zigbeeModule.prototype.begin = function() {
         _.each(devices, function(device) {
           self.emit('register', device);
 
-          client.on('message', function(incomingAddress, reader) {
-            if (incomingAddress == address) {
-              device.emit('message', address, reader);
-            }
+          client.on(address, function(incomingAddress, reader) {
+            device.emit('message', incomingAddress, reader);
           });
         });
 
         seenAddresses[address] = true;
-      })
-      .on('message',function(address, reader) {
-
-        self.log.info('Message from (' + address + ')');
-
-      }.bind(this));
+      });
 
   }.bind(this));
 
@@ -120,6 +113,7 @@ zigbeeModule.prototype.begin = function() {
 var mappings = {
     "Light" : ["0xc05e:0x0000", "0xc05e:0x0100","0xc05e:0x0200"],
     "Relay" : ["0x0104:0x0009"],
+    "Power" : ["0x0104:0x0009"],
     "LightSensor" : ["0x0104:0x0106"]
 };
 

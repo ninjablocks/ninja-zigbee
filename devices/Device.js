@@ -67,7 +67,7 @@ Device.prototype.sendCommand = function(command, cb) {
     var buffer = msg.make();
     buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
 
-    this.log.trace('Sending command : ' + P.inverted[command] + ' message', buffer.toJSON());
+    this.log.trace('Sending command : ' + P.inverted[command] + ' message length:', buffer.length);
     this.sendMessage(buffer);
 };
 
