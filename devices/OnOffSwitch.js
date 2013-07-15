@@ -1,5 +1,6 @@
 var util = require('util');
 var Device = require('./Device');
+var P = require('../lib/protocol');
 
 util.inherits(OnOffSwitch, Device);
 
@@ -11,9 +12,15 @@ function OnOffSwitch(address, headers, zigbeeDevice, socket) {
     this.V = 0;
     this.D = 6;
 
-    this.on('message', function(address, reader) {
-        console.log('On/off switch got a message', reader.vars);
-    });
+    this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {
+        reader.word8('value');
+
+        this.log.debug('State change value : ', reader.vars.value);
+
+        // ES: Saw 0x35 = open, 0x31 = closed on Netvox ZB01C
+        this.emit('data', reader.vars.value === 0x31? 0 : 1);
+
+    }.bind(this));
 }
 
 module.exports = OnOffSwitch;
