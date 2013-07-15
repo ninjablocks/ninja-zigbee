@@ -50,7 +50,7 @@ Device.prototype.sendCommand = function(command, cb) {
 
     var msg = new BufferMaker();
     msg.UInt8(command);
-    msg.UInt8(13); // TODO: AUTO SET THIS!
+    msg.UInt8(0); // This is set at the end.
     msg.UInt8(P.Addr16Bit);
     msg.UInt16LE(this._headers.networkAddress);
     msg.UInt32LE(0); // pad for an ieee addr size;
@@ -61,8 +61,6 @@ Device.prototype.sendCommand = function(command, cb) {
     if (cb) {
       cb(msg); // Let the calling concrete class set its own state
     }
-
-    // TODO: Set correct message length
 
     var buffer = msg.make();
     buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
