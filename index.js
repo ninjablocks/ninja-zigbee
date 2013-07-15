@@ -61,10 +61,10 @@ zigbeeModule.prototype.begin = function() {
     this.socket = net.connect(11235,function() {
       this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
-        //client.discoverDevices();
+        client.discoverDevices();
       }, 1000);
       setInterval(function() {
-        client.discoverDevices();
+        //client.discoverDevices();
       }, 1000);
     }.bind(this));
 

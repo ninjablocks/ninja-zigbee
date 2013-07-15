@@ -15,7 +15,7 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
     this._zigbeeDevice = zigbeeDevice;
     this._socket = socket;
 
-    this.G = address;
+    this.G = address.replace(/[^a-zA-Z0-9]/g, '');
     this.name = 'ZigBee ' + zigbeeDevice.name + ' (' + address + ')';
 
     this.log = log4js.getLogger('ZB Device - ' + driverName + ' (' + address + ')');

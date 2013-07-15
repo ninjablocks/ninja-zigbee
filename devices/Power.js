@@ -11,6 +11,8 @@ function Driver(address, headers, zigbeeDevice, socket) {
     this.V = 0;
     this.D = 243; //power
 
+    this._valueReader = function(v) {return v;};
+
     Driver.super_.apply(this, arguments);
 }
 
