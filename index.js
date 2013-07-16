@@ -53,7 +53,7 @@ zigbeeModule.prototype.begin = function() {
   // Create a new client
   var client = new ZigBeeClient();
 
-  var seenAddresses = {};
+  var devices = {};
 
   client.on('ready', function() {
     // Create a new connection to the SRPC server: port 0x2be3 for ZLL
@@ -77,24 +77,30 @@ zigbeeModule.prototype.begin = function() {
     // Increase the max listeners as we bind ~3 events per n devices
     this.socket.setMaxListeners(999);
 
+    var presence = new PresenceDriver(this._opts, this._app);
+
     // Setup the bi-directional pipe between the client and socket.
     // Additionally setup the pipe between any new devices and the socket
     // once they are discovered.
     client
       .pipe(this.socket)
       .pipe(client)
+      .on('command', function(address, reader) {
+        presence.emit('deviceSeen', address, reader, zigbeeDevice);
+      })
       .on('device',function(address, headers, zigbeeDevice) {
 
-        if (seenAddresses[address]) {
+        if (devices[address]) {
+          // We've already seen this device...
           return;
         }
-        seenAddresses[address] = true;
+        devices[address] = zigbeeDevice;
 
         self.log.info('Device found', zigbeeDevice.name + ' ' + zigbeeDevice.profile + ':' + zigbeeDevice.id + ' (' + address + ')');
 
         // Forward all relevant messages from zigbee to our new devices
-        var devices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
-        _.each(devices, function(device) {
+        var newDevices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
+        _.each(newDevices, function(device) {
           self.emit('register', device);
 
           client.on(address, function(incomingAddress, reader) {
@@ -102,7 +108,6 @@ zigbeeModule.prototype.begin = function() {
           });
         });
 
-        seenAddresses[address] = true;
       });
 
   }.bind(this));
