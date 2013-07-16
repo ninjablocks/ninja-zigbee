@@ -4,6 +4,7 @@ var net = require('net')
   , spawn = require('child_process').spawn
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
   , _ = require('underscore')
+  , PresenceDriver = require('./lib/PresenceDriver')
   , log4js = require('log4js');
 
 function zigbeeModule(opts,app) {
@@ -13,6 +14,8 @@ function zigbeeModule(opts,app) {
   this._app = app;
   this._opts = opts;
   this.log = log4js.getLogger('ZB');
+
+  this._presence = new PresenceDriver(this._opts, this._app);
 
   // Spawn the SRPC Server
   var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
@@ -77,8 +80,6 @@ zigbeeModule.prototype.begin = function() {
     // Increase the max listeners as we bind ~3 events per n devices
     this.socket.setMaxListeners(999);
 
-    var presence = new PresenceDriver(this._opts, this._app);
-
     // Setup the bi-directional pipe between the client and socket.
     // Additionally setup the pipe between any new devices and the socket
     // once they are discovered.
@@ -86,13 +87,15 @@ zigbeeModule.prototype.begin = function() {
       .pipe(this.socket)
       .pipe(client)
       .on('command', function(address, reader) {
-        presence.emit('deviceSeen', address, reader, zigbeeDevice);
+        self._presence.emit('deviceSeen', address, reader.vars, zigbeeDevice);
       })
       .on('device',function(address, headers, zigbeeDevice) {
 
+        self._presence.emit('deviceSeen', address, headers, zigbeeDevice);
+
         if (devices[address]) {
-          // We've already seen this device...
-          return;
+          // We've already seen this device... 
+         return;
         }
         devices[address] = zigbeeDevice;
 

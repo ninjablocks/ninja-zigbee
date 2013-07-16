@@ -24,6 +24,11 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
     this.on('message', function(address, reader) {
         this.log.debug("Incoming command", P.inverted[reader.vars.command], JSON.stringify(reader.vars));
     }.bind(this));
+
+    process.nextTick(function() {
+        this.sendCommand(P.RPCS_IDENTIFY_DEVICE);
+        this.sendCommand(P.RPCS_SEND_ZCL);
+    }.bind(this));
 }
 
 Device.prototype.onCommand = function(command, cb) {

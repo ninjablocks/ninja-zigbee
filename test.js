@@ -19,9 +19,13 @@ var d = new (require('./index'))(opts, {
     token: 'XXX'
 });
 
-d.emit = function(channel, value) {
-    console.log('Driver.emit', channel);
-    if (channel == 'register') {
+d.save = function() {
+    console.log('Driver.save', opts);
+};
+
+d.on('register', function(value) {
+    console.log('Driver.register');
+    
         console.log('Registered device : ', value.name);
         var device = value;
 
@@ -48,8 +52,8 @@ d.emit = function(channel, value) {
             }, 2000);
         }
 
-    }
-};
+    
+});
 
 d.save = function() {
     console.log('Saved opts', opts);
