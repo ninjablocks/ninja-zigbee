@@ -30,7 +30,8 @@
     "prettyjson": "~0.8.1",
     "log4js": "~0.6.6",
     "buffermaker": "0.0.10",
-    "binary": "~0.3.0"
+    "binary": "~0.3.0",
+    "ninja-presence-base": "git://github.com/elliots/ninja-presence-base"
   },
   "license": "MIT",
   "config": {}
