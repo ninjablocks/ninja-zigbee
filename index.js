@@ -5,7 +5,13 @@ var net = require('net')
   , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
   , _ = require('underscore')
   , PresenceDriver = require('./lib/PresenceDriver')
+  , DebugDevice = require('./devices/DebugDevice')
   , log4js = require('log4js');
+
+
+// Adds extra logging, and attempts to communicate with any unknown devices.
+var DEBUG_MODE = true;
+
 
 function zigbeeModule(opts,app) {
 
@@ -18,10 +24,10 @@ function zigbeeModule(opts,app) {
   this._presence = new PresenceDriver(this._opts, this._app);
 
   // Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
+  var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
 
   rpcServer.stdout.on('data', function (data) {
-    self.log.trace('rpc: ' + data);
+    self.log.trace('rpc: ' + data.toString());
   });
 
   rpcServer.stderr.on('data', function (data) {
@@ -86,31 +92,50 @@ zigbeeModule.prototype.begin = function() {
     client
       .pipe(this.socket)
       .pipe(client)
-      .on('command', function(address, reader) {
-        self._presence.emit('deviceSeen', address, reader.vars, zigbeeDevice);
-      })
-      .on('device',function(address, headers, zigbeeDevice) {
+      .on('device',function(address, zigbeeDevice, headers, isNew) {
 
-        self._presence.emit('deviceSeen', address, headers, zigbeeDevice);
+        self._presence.emit('deviceSeen', address, zigbeeDevice, headers);
 
-        if (devices[address]) {
-          // We've already seen this device... 
-         return;
-        }
-        devices[address] = zigbeeDevice;
+        if (isNew) {
+          if (!zigbeeDevice) {
+            self.log.warn("Found an unknown device. Please post this to the forums -> Profile:" + hex(headers.profileId) + ' Device:' + hex(headers.deviceId) + ' Address:' + address);
+            if (DEBUG_MODE) {
+              zigbeeDevice = {
+                name: '[Unknown Device]',
+                profile: headers.profileId,
+                id: headers.deviceId
+              };
+            } else {
+              return;
+            }
+          }
 
-        self.log.info('Device found', zigbeeDevice.name + ' ' + zigbeeDevice.profile + ':' + zigbeeDevice.id + ' (' + address + ')');
+          self.log.info('Device found', zigbeeDevice.name + ' ' + zigbeeDevice.profile + ':' + zigbeeDevice.id + ' (' + address + ')');
 
-        // Forward all relevant messages from zigbee to our new devices
-        var newDevices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
-        _.each(newDevices, function(device) {
-          self.emit('register', device);
+          // Forward all relevant messages from zigbee to our new devices
+          var newDevices = createNinjaDevices(address, headers, zigbeeDevice, self.socket);
 
-          client.on(address, function(incomingAddress, reader) {
-            device.emit('message', incomingAddress, reader);
+          if (!newDevices.length) {
+            self.log.warn("Found a '" + zigbeeDevice.name + "' device that we weren't able to expose over NinjaBlocks. Please post this to the forums -> Profile:" + hex(headers.profileId) + ' Device:' + hex(headers.deviceId) + ' Address:' + address);
+            if (DEBUG_MODE) {
+              newDevices = [new DebugDevice(address, headers, zigbeeDevice, self.socket, 'DebugDevice')];
+            }
+          }
+
+          _.each(newDevices, function(device) {
+            self.emit('register', device);
+
+            client.on(address, function(incomingAddress, device, reader) {
+              device.emit('message', incomingAddress, reader);
+            });
           });
-        });
 
+
+        }
+
+      })
+      .on('deviceSeen', function(address, zigbeeDevice, headers) {
+        self._presence.emit('deviceSeen', address, zigbeeDevice, headers);
       });
 
   }.bind(this));
@@ -136,12 +161,7 @@ _.each(mappings, function(deviceIds, driverName) {
 
 function createNinjaDevices(address, headers, zigbeeDevice, socket) {
 
-  function h(v) {
-    v = '000' + v.toString(16);
-    return '0x' + v.substring(v.length-4);
-  }
-
-  var id = h(headers.profileId) + ':' + h(headers.deviceId);
+  var id = hex(headers.profileId) + ':' + hex(headers.deviceId);
 
   var devices = [];
 
@@ -153,6 +173,11 @@ function createNinjaDevices(address, headers, zigbeeDevice, socket) {
   });
 
   return devices;
+}
+
+function hex(v) {
+  v = '000' + v.toString(16);
+  return '0x' + v.substring(v.length-4);
 }
 
 /*
