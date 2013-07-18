@@ -5,8 +5,8 @@ var P = require('../lib/protocol');
 util.inherits(Driver, PollingDevice);
 
 function Driver(address, headers, zigbeeDevice, socket) {
-    this._incomingCommand = P.RPCS_GET_HUMID_READING;
-    this._outgoingCommand = P.RPCS_HUMID_READING;
+    this._incomingCommand = P.RPCS_HUMID_READING;
+    this._outgoingCommand = P.RPCS_GET_HUMID_READING;
 
     this.V = 0;
     this.D = 8; //Humidity Sensor
@@ -15,7 +15,7 @@ function Driver(address, headers, zigbeeDevice, socket) {
 }
 
 Driver.prototype.readZigbeeValue = function(reader) {
-    reader.word32lu('value');
+    reader.word16lu('value');
     return reader.vars.value / 100;
 };
 

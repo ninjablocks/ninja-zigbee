@@ -125,7 +125,7 @@ zigbeeModule.prototype.begin = function() {
           _.each(newDevices, function(device) {
             self.emit('register', device);
 
-            client.on(address, function(incomingAddress, device, reader) {
+            client.on(address, function(incomingAddress, zigbeeDevice, reader) {
               device.emit('message', incomingAddress, reader);
             });
           });
@@ -147,6 +147,7 @@ var mappings = {
     "Light" : ["0xc05e:0x0000", "0xc05e:0x0100","0xc05e:0x0200"],
     "Relay" : ["0x0104:0x0009"],
     "Power" : ["0x0104:0x0009"],
+    "Humidity" : ["0x0104:0x0302"],
     "Temperature" : ["0x0104:0x0302"],
     "LightSensor" : ["0x0104:0x0106"],
     "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001"],
