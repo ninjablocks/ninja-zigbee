@@ -48,6 +48,10 @@
 		</device>
 
 		<device id="0x0006" name="Remote Control" />
+
+		<!-- 2013-07-18 - ES - Seen from Wulian WL-ZRFC-01 -->
+		<device id="0x00f2" name="Wireless IR Transmitter"/>
+
 		<device id="0x0100" name="On/Off Light" />
 		<device id="0x0103" name="On/Off Light Switch">
 			<server>
