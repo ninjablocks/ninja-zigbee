@@ -1,19 +1,20 @@
-var net = require('net')
-  , util = require('util')
-  , Stream = require('stream')
-  , spawn = require('child_process').spawn
-  , ZigBeeClient = require(__dirname+'/lib/ZigbeeClient')
-  , _ = require('underscore')
-  , PresenceDriver = require('./lib/PresenceDriver')
-  , DebugDevice = require('./devices/DebugDevice')
-  , log4js = require('log4js');
+var net = require('net');
+var util = require('util');
+var Stream = require('stream');
+var spawn = require('child_process').spawn;
+var _ = require('underscore');
+var log4js = require('log4js');
+
+var DebugDevice = require('./devices/DebugDevice');
+var PresenceDriver = require('./lib/PresenceDriver');
+var ZigBeeClient = require('./lib/ZigbeeClient');
 
 
 // Adds extra logging, and attempts to communicate with any unknown devices.
 var DEBUG_MODE = true;
 
 
-function zigbeeModule(opts,app) {
+function ZigbeeDriver(opts,app) {
 
   var self = this;
 
@@ -21,10 +22,19 @@ function zigbeeModule(opts,app) {
   this._opts = opts;
   this.log = log4js.getLogger('ZB');
 
-  this._presence = new PresenceDriver(this._opts, this._app);
+  var rpcServer;
 
   // Spawn the SRPC Server
-  var rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
+  switch (process.platform) {
+    case 'darwin':
+      rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
+      break;
+    case 'linux':
+      rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
+      break;
+    default:
+      throw new Error("The Zigbee Driver only supports linux and osx. Found: " + process.platform);
+  }
 
   rpcServer.stdout.on('data', function (data) {
     self.log.trace('rpc: ' + data.toString());
@@ -38,21 +48,21 @@ function zigbeeModule(opts,app) {
     self.log.error('rpc exited with code ' + code);
   });
 
+  this._presence = new PresenceDriver(this._opts, this._app);
+
   // Hack to give the Server time to start
   // TODO: parse response from server's stdout
-  app.on('client::up', this.begin.bind(this));
+  app.once('client::up', this.begin.bind(this));
 }
 
-module.exports = zigbeeModule;
+module.exports = ZigbeeDriver;
 
-util.inherits(zigbeeModule,Stream);
+util.inherits(ZigbeeDriver,Stream);
 
 /**
- * Creates necessary classes/connections and the `pipes between the.
- *
- * @param  {Object} cloud Methods inherited from the parent of the module
+ * Creates necessary classes/connections and the pipes between the ZigbeeClient and this driver
  */
-zigbeeModule.prototype.begin = function() {
+ZigbeeDriver.prototype.begin = function() {
   var self = this;
 
   if (this.socket) {
@@ -76,7 +86,6 @@ zigbeeModule.prototype.begin = function() {
         //client.discoverDevices();
       }, 1000);
     }.bind(this));
-
     // Listen for errors on this connection
     this.socket.on('error',function(err) {
       this.log.error(err);
