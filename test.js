@@ -1,61 +1,28 @@
+var EventEmitter = require('events').EventEmitter;
 
 var opts = {};
 
-var d = new (require('./index'))(opts, {
-    on : function(x,cb){
-        setTimeout(cb, 100);
-    },
-    log: {
-        debug: console.log,
-        info: console.log,
-        warn: console.log,
-        error: console.log
-    },
-    opts: {
-        cloudHost : "zendo.ninja.is",
-        apiHost : "api.ninja.is",
-        streamHost : "stream.ninja.is"
-    },
-    token: 'XXX'
-});
-
-d.save = function() {
-    console.log('Driver.save', opts);
+var app = new EventEmitter();
+app.log = {
+    debug: console.log,
+    info: console.log,
+    warn: console.log,
+    error: console.log
 };
 
-d.on('register', function(value) {
-    console.log('Driver.register');
-    
-        console.log('Registered device : ', value.name);
-        var device = value;
+var driver = new (require('index'))(opts, app);
 
-        device.on('data', function(data) {
-            console.log('Device emitted data - ' + data);
-        });
-
-        if (device.D == 238) { // relay
-            var last = true;
-            setInterval(function() {
-            //    device.write(last = !last);
-            }, 2000);
-        }
-
-        if (device.D == 224) { // light
-            setInterval(function() {
-                device.write({
-                    bri: Math.floor(Math.random() * 256),
-                    hue: Math.floor(Math.random() * 65535),
-                    sat: Math.floor(Math.random() * 256),
-                    on: Math.random() > 0.5,
-                    transitionTime: Math.floor(Math.random() * 2000)
-                });
-            }, 2000);
-        }
-
-    
+driver.on('register', function(device) {
+    console.log('Driver.register', device);
+    device.on('data', function(value) {
+        console.log('Device.emit data', value);
+    });
 });
 
-d.save = function() {
+driver.save = function() {
     console.log('Saved opts', opts);
 };
 
+setTimeout(function() {
+    app.emit('client::up');
+}, 500);
