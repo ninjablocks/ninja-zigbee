@@ -1,6 +1,6 @@
 {
   "name": "ninja-zigbee",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Ninja ZigBee driver for the TI CC2531 programmed as a Zigbee Network Processor",
   "contributors": [
     "Elliot Shepherd <elliot@ninjablocks.com>"
