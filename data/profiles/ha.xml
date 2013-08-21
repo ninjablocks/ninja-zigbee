@@ -53,6 +53,26 @@
 		<device id="0x00f2" name="Wireless IR Transmitter"/>
 
 		<device id="0x0100" name="On/Off Light" />
+		<device id="0x0102" name="Color Light"> <!-- Seen by tcave -->
+                                     <server>
+                                                    <clusterRef name="Basic" />
+                                                    <clusterRef name="On/Off Switch Configuration" />
+                                                    <clusterRef name="Level Control" />
+                                                    <clusterRef name="Color Control" />
+                                                    <clusterRef name="Scenes" />
+                                                    <clusterRef name="Groups" />
+                                     </server>
+                      </device>
+                      <device id="0x0105" name="Color Dimmable Switch"> <!-- Seen by james -->
+                                     <server>
+                                                    <clusterRef name="Basic" />
+                                                    <clusterRef name="On/Off Switch Configuration" />
+                                                    <clusterRef name="Level Control" />
+                                                    <clusterRef name="Color Control" />
+                                                    <clusterRef name="Scenes" />
+                                                    <clusterRef name="Groups" />
+                                     </server>
+                      </device>
 		<device id="0x0103" name="On/Off Light Switch">
 			<server>
 				<clusterRef name="Basic" />
