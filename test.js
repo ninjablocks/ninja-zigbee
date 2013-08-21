@@ -10,7 +10,7 @@ app.log = {
     error: console.log
 };
 
-var driver = new (require('index'))(opts, app);
+var driver = new (require('./index'))(opts, app);
 
 driver.on('register', function(device) {
     console.log('Driver.register', device);
