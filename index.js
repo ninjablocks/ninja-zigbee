@@ -37,7 +37,7 @@ function ZigbeeDriver(opts,app) {
   }
 
   rpcServer.stdout.on('data', function (data) {
-    self.log.trace('rpc: ' + data.toString());
+    //self.log.debug('rpc: ' + data.toString());
   });
 
   rpcServer.stderr.on('data', function (data) {
