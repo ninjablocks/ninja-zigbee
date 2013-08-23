@@ -17,7 +17,7 @@ driver.on('register', function(device) {
     device.on('data', function(value) {
         console.log('Device.emit data', value);
     });
-    if (device.D == 224) { //It's a light
+    if (device.D = 224) { //It's a light
       setTimeout(function() {
          device.write({bri:254,sat:254,hue:0,on:true});
       }, 2000)

@@ -103,13 +103,9 @@ ZigBeeClient.prototype.processData = function(msg) {
       .word16lu('profileId')
       .word16lu('deviceId');
 
-    if (reader.vars.networkAddress === 0) {
-      this.log.info('This is the fake coordinator device. Ignoring for now.');
-    } else {
-       this._devices[address]  = this._profileStore.getDevice(reader.vars.profileId, reader.vars.deviceId);
+    this._devices[address]  = this._profileStore.getDevice(reader.vars.profileId, reader.vars.deviceId);
 
-       this.emit('device', address, this._devices[address], reader.vars, !device);
-    }
+    this.emit('device', address, this._devices[address], reader.vars, !device);
 
   } else {
     if (!device && reader.vars.command == P.RPCS_ZONESTATE_CHANGE) {
