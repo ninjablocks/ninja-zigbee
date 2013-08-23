@@ -25,15 +25,18 @@ function ZigbeeDriver(opts,app) {
   var rpcServer;
 
   // Spawn the SRPC Server
-  switch (process.platform) {
-    case 'darwin':
-      rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1411"],  { cwd:__dirname+'/bin/' });
+  switch (process.platform + process.arch) {
+    case 'darwinx64':
+      rpcServer = spawn(__dirname+'/bin/zllGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
       break;
-    case 'linux':
-      rpcServer = spawn(__dirname+'/bin/zllGateway.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
+    case 'linuxarm':
+      rpcServer = spawn(__dirname+'/bin/zllGateway.linux.arm.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
+      break;
+    case 'linuxx64':
+      rpcServer = spawn(__dirname+'/bin/zllGateway.linux.x64.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
       break;
     default:
-      throw new Error("The Zigbee Driver only supports linux and osx. Found: " + process.platform);
+      throw new Error("The Zigbee Driver only supports linux and osx. Found: " + process.platform + ' - ' + process.arch);
   }
 
   rpcServer.stdout.on('data', function (data) {
