@@ -37,11 +37,51 @@ Device.prototype.onCommand = function(command, cb) {
 
 };
 
+Device.prototype.bindToCluster = function(cluster) {
+
+    // ES: TODO: Fix this. The coordinator should always be available.
+    if (!this.coordinator) {
+        setTimeout(function() {
+            this.bindToCluster(cluster);
+        }.bind(this), 50);
+        return;
+    }
+
+    var c = this.hasServerCluster(cluster);
+
+    this.log.info("Binding to cluster " + c.name + ' (' + c.id + ')');
+
+    var msg = new BufferMaker();
+
+    function writeAddress(y) {
+        msg.UInt8(y.endPoint);
+
+        var s = '0000000000000' + y.ieee.toString(16);
+        s = s.substr(s.length-16, s.length).match(/.{8}/g);
+
+        msg.UInt32LE(parseInt(s[0], 16));
+        msg.UInt32LE(parseInt(s[1], 16));
+    }
+
+    msg.UInt8(P.RPCS_BIND_DEVICES);
+    msg.UInt8(0); // Message size... this is set at the end.
+    msg.UInt16LE(this._headers.networkAddress);
+
+    writeAddress(this._headers);
+    writeAddress(this.coordinator);
+
+    msg.UInt16LE(c.id);
+
+    var buffer = msg.make();
+    buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
+    this.sendMessage(buffer);
+};
+
 Device.prototype.hasServerCluster = function(cluster) {
     for (var x in this._zigbeeDevice.server) {
         var c = this._zigbeeDevice.server[x];
         if (c.name == cluster) {
-            return true;
+            return c;
         }
     }
     return false;
