@@ -98,6 +98,8 @@ ZigbeeDriver.prototype.begin = function() {
     // Increase the max listeners as we bind ~3 events per n devices
     this.socket.setMaxListeners(999);
 
+    var coordinator;
+
     // Setup the bi-directional pipe between the client and socket.
     // Additionally setup the pipe between any new devices and the socket
     // once they are discovered.
@@ -137,6 +139,8 @@ ZigbeeDriver.prototype.begin = function() {
           _.each(newDevices, function(device) {
             self.emit('register', device);
 
+            device.coordinator = coordinator;
+
             client.on(address, function(incomingAddress, zigbeeDevice, reader) {
               device.emit('message', incomingAddress, reader);
             });
@@ -145,6 +149,10 @@ ZigbeeDriver.prototype.begin = function() {
 
         }
 
+      })
+      .on('coordinator', function(address, headers) {
+        self.log.info('Found coordinator at ', address, headers);
+        coordinator = headers;
       })
       .on('deviceSeen', function(address, zigbeeDevice, headers) {
         self._presence.emit('deviceSeen', address, zigbeeDevice, headers);
