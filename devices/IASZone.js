@@ -11,6 +11,8 @@ function IASZone(address, headers, zigbeeDevice, socket) {
     this.V = 0;
     this.D = 244; // state device
 
+    this.bindToCluster('IAS Zone');
+
     this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {
         reader.word8('value');
 
