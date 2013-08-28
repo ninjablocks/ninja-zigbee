@@ -11,6 +11,8 @@ function Driver(address, headers, zigbeeDevice, socket) {
     this.V = 0;
     this.D = 9; //Temp Sensor
 
+    this._pollInterval = 30000;
+
     Driver.super_.apply(this, arguments);
 }
 

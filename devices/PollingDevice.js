@@ -15,7 +15,7 @@ function PollingDevice(address, headers, zigbeeDevice, socket, driverName) {
 
     this.onCommand(this._incomingCommand, this.onReading.bind(this));
 
-    setInterval(this.pollForReading.bind(this), this._pollInterval || 2000);
+    setInterval(this.pollForReading.bind(this), this._pollInterval || 60000);
 }
 
 PollingDevice.prototype.onReading = function(address, reader) {
