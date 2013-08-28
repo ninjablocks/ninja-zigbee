@@ -18,10 +18,12 @@
     "Light Link"
   ],
   "os": [
-    "linux"
+    "linux",
+    "darwin"
   ],
   "cpu": [
-    "arm"
+    "arm",
+    "x64"
   ],
   "dependencies": {
     "xml2js": "~0.2.8",
