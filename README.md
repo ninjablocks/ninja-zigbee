@@ -1,4 +1,4 @@
-#NinjaBlocks Node.JS ZigBee Driver
+#NinjaBlocks Node.js ZigBee Driver
 
 ## Requirements
 - TI CC2531 USB dongle programmed as a ZigBee Network Processor
