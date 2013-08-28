@@ -53,28 +53,24 @@ Device.prototype.bindToCluster = function(cluster) {
 
     var msg = new BufferMaker();
 
-    function writeAddress(y) {
-        msg.UInt8(y.endPoint);
-
-        var s = '0000000000000' + y.ieee.toString(16);
-        s = s.substr(s.length-16, s.length).match(/.{8}/g);
-
-        msg.UInt32LE(parseInt(s[0], 16));
-        msg.UInt32LE(parseInt(s[1], 16));
-    }
-
     msg.UInt8(P.RPCS_BIND_DEVICES);
     msg.UInt8(0); // Message size... this is set at the end.
-    msg.UInt16LE(this._headers.networkAddress);
+    msg.Int16LE(this._headers.networkAddress);
 
-    writeAddress(this._headers);
-    writeAddress(this.coordinator);
+    msg.UInt8(this._headers.endPoint);
+    msg.Int64LE(this._headers.ieee);
+    msg.UInt8(this.coordinator.endPoint);
+    msg.Int64LE(this.coordinator.ieee);
 
     msg.UInt16LE(c.id);
 
     var buffer = msg.make();
     buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
-    this.sendMessage(buffer);
+
+    // ES: I've seen it fail (when we send them too quick?) So delay up to 2 seconds.
+    setTimeout(function() {
+        this.sendMessage(buffer);
+    }.bind(this), (Math.random() * 2000));
 };
 
 Device.prototype.hasServerCluster = function(cluster) {
