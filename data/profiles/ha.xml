@@ -13,6 +13,7 @@
 		<device id="0x0000" name="On/Off Switch">
 			<server>
 				<clusterRef name="Basic" />
+				<clusterRef name="On/Off" />
 				<clusterRef name="Identify" />
 				<clusterRef name="On/Off Switch Configuration" />
 			</server>
