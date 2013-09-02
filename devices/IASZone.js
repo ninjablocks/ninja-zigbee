@@ -27,8 +27,8 @@ function IASZone(address, headers, zigbeeDevice, socket) {
     IASZone.super_.apply(this, arguments);
 
     this.writable = false;
-    this.V = 0;
-    this.D = 244; // state device
+    this.V = 1;
+    this.D = 600; // IAS Zone
 
     this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {
 
@@ -43,9 +43,7 @@ function IASZone(address, headers, zigbeeDevice, socket) {
 
         this.log.debug('Zone State Parsed : ', state);
 
-        // ES: Saw 0x35 = open, 0x31 = closed on Netvox ZB01C
-        //this.emit('data', reader.vars.value === 0x31? 0 : 1);
-
+        this.emit('data', state);
     }.bind(this));
 }
 
