@@ -27,7 +27,7 @@ function IASZone(address, headers, zigbeeDevice, socket) {
     IASZone.super_.apply(this, arguments);
 
     this.writable = false;
-    this.V = 1;
+    this.V = 0;
     this.D = 600; // IAS Zone
 
     this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {

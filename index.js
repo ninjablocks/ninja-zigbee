@@ -13,6 +13,8 @@ var ZigBeeClient = require('./lib/ZigbeeClient');
 // Adds extra logging, and attempts to communicate with any unknown devices.
 var DEBUG_MODE = true;
 
+// Uses The Faker to create devices that emit random things
+var FAKE_DEVICES = false;
 
 function ZigbeeDriver(opts,app) {
 
@@ -66,6 +68,11 @@ util.inherits(ZigbeeDriver,Stream);
  * Creates necessary classes/connections and the pipes between the ZigbeeClient and this driver
  */
 ZigbeeDriver.prototype.begin = function() {
+
+  if (FAKE_DEVICES) {
+    require('./fake/Faker')(this);
+  }
+
   var self = this;
 
   if (this.socket) {
