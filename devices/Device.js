@@ -55,14 +55,14 @@ Device.prototype.bindToCluster = function(cluster) {
 
     msg.UInt8(P.RPCS_BIND_DEVICES);
     msg.UInt8(0); // Message size... this is set at the end.
-    msg.Int16LE(this._headers.networkAddress);
+    msg.UInt16LE(this._headers.networkAddress);
 
     msg.UInt8(this._headers.endPoint);
     msg.Int64LE(this._headers.ieee);
     msg.UInt8(this.coordinator.endPoint);
     msg.Int64LE(this.coordinator.ieee);
 
-    msg.UInt16LE(c.id);
+    msg.UInt16LE(parseInt(c.id, 16));
 
     var buffer = msg.make();
     buffer[1] = buffer.length-2; // Set the size of the message minus the first two bytes
