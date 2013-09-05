@@ -178,7 +178,8 @@ var mappings = {
     "Temperature" : ["0x0104:0x0302"],
     "LightSensor" : ["0x0104:0x0106"],
     "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001"],
-    "IASZone" : ["0x0104:0x0402"]
+    "IASZone" : ["0x0104:0x0402"],
+    "OccupancySensor" : ["0x0104:0x0107"]
 };
 
 var drivers = {};

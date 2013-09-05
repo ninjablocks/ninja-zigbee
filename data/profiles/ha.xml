@@ -89,6 +89,11 @@
 				<clusterRef name="Illuminance measurement" />
 			</server>
 		</device>
+		<device id="0x0107" name="Occupancy Sensor">
+			<server>
+				<clusterRef name="Occupancy sensing" />
+			</server>
+		</device>
 		<device id="0x0200" name="Shade">
 			<server>
 				<clusterRef name="Shade Configuration" />
