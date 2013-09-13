@@ -17,11 +17,19 @@ driver.on('register', function(device) {
     device.on('data', function(value) {
         console.log('Device.emit data', value);
     });
-    if (device.D == 224) { //It's a light
-      setTimeout(function() {
-         device.write({bri:254,sat:254,hue:0,on:true});
-      }, 2000)
+   /* if (device.D == 224) { //It's a light
+      setInterval(function() {
+         device.write({bri:254,sat:254,hue:Math.floor(Math.random()* 65535),on:true,transitionTime:0});
+      }, 1000);
     }
+
+    if (device.D == 238) { //It's a relay
+      var x = false;
+      setInterval(function() {
+         device.write(x=!x);
+      }, 1000);
+    }*/
+
 });
 
 driver.save = function() {
