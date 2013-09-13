@@ -92,6 +92,7 @@
 		<device id="0x0107" name="Occupancy Sensor">
 			<server>
 				<clusterRef name="Occupancy sensing" />
+				<clusterRef name="On/Off" /> <!-- Not in spec, but present in Cleode (and others?)-->
 			</server>
 		</device>
 		<device id="0x0200" name="Shade">
