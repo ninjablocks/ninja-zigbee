@@ -96,7 +96,7 @@ ZigbeeDriver.prototype.begin = function() {
 
     // Create a new connection to the SRPC server: port 0x2be3 for ZLL
     // TODO: incorporate this into the ZigbeeClient
-    this.socket = net.connect(11235, /*'10.0.1.135'*/, function() {
+    this.socket = net.connect(11235, /*'10.0.1.135',*/ function() {
       this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
         client.discoverDevices();
