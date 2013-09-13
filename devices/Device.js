@@ -48,6 +48,16 @@ Device.prototype.bindToCluster = function(cluster) {
     }
 
     var c = this.hasServerCluster(cluster);
+    if (!c) {
+        // Cluster id instead of name?
+        if (!isNaN(parseInt(c.id, 16))) {
+            c = {name:'[unknown]', id:cluster};
+        }
+    }
+    if (!c) {
+        this.log.warn('Unknown cluster', cluster,'. This device does not have that cluster and so cannot bind to it.');
+        return;
+    }
 
     this.log.info("Binding to cluster " + c.name + ' (' + c.id + ')');
 
