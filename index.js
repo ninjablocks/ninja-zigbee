@@ -4,6 +4,7 @@ var Stream = require('stream');
 var spawn = require('child_process').spawn;
 var _ = require('underscore');
 var log4js = require('log4js');
+var Table = require('cli-table');
 
 var DebugDevice = require('./devices/DebugDevice');
 var PresenceDriver = require('./lib/PresenceDriver');
@@ -82,12 +83,20 @@ ZigbeeDriver.prototype.begin = function() {
   // Create a new client
   var client = new ZigBeeClient();
 
-  var devices = {};
+  var devices = [];
+
+  var showTable = false;
 
   client.on('ready', function() {
+
+    setTimeout(function() {
+      showDevicesTable();
+      showTable = true;
+    }, 2000);
+
     // Create a new connection to the SRPC server: port 0x2be3 for ZLL
     // TODO: incorporate this into the ZigbeeClient
-    this.socket = net.connect(11235,function() {
+    this.socket = net.connect(11235, /*'10.0.1.135'*/, function() {
       this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
         client.discoverDevices();
@@ -145,6 +154,7 @@ ZigbeeDriver.prototype.begin = function() {
 
           _.each(newDevices, function(device) {
             self.emit('register', device);
+            devices.push(device);
 
             device.coordinator = coordinator;
 
@@ -153,6 +163,9 @@ ZigbeeDriver.prototype.begin = function() {
             });
           });
 
+          if (showTable) {
+            showDevicesTable();
+          }
 
         }
 
@@ -165,9 +178,27 @@ ZigbeeDriver.prototype.begin = function() {
         self._presence.emit('deviceSeen', address, zigbeeDevice, headers);
       });
 
+       function showDevicesTable() {
+        if (devices.length === 0) {
+          return;
+        }
+        var table = new Table({
+            head: ['Address', 'Profile ID', 'Device ID', 'Driver'],
+            colWidths: [16,16,16,16]
+        });
+
+        _.each(devices, function(device) {
+          table.push([device.address, hex(device.zigbeeDevice.profile)||'', hex(device.zigbeeDevice.id)||'', device.driver||'']);
+        });
+        self.log.info('-- ZigBee Devices --\n' + table.toString());
+      }
+
   }.bind(this));
 
+
+
 };
+
 
 // TODO: move this out of here! into device drivers?
 var mappings = {
@@ -177,9 +208,9 @@ var mappings = {
     "Humidity" : ["0x0104:0x0302"],
     "Temperature" : ["0x0104:0x0302"],
     "LightSensor" : ["0x0104:0x0106"],
-    "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001"],
-    "IASZone" : ["0x0104:0x0402"],
-    "OccupancySensor" : ["0x0104:0x0107"]
+    "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001", "0x0104:0x0107"],
+    "IASZone" : ["0x0104:0x0402"]
+    //,"OccupancySensor" : ["0x0104:0x0107"]
 };
 
 var drivers = {};
@@ -197,6 +228,10 @@ function createNinjaDevices(address, headers, zigbeeDevice, socket) {
   _.each(mappings, function(deviceIds, driverName) {
     if (deviceIds.indexOf(id) > -1) {
       var device = new drivers[driverName](address, headers, zigbeeDevice, socket, driverName);
+      device.driver = driverName;
+      device.address = address;
+      device.headers = headers;
+      device.zigbeeDevice = zigbeeDevice;
       devices.push(device);
     }
   });

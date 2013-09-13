@@ -33,7 +33,8 @@
     "log4js": "~0.6.6",
     "buffermaker": "git://github.com/ninjablocks/BufferMaker",
     "binary": "~0.3.0",
-    "ninja-presence-base": "git://github.com/elliots/ninja-presence-base"
+    "ninja-presence-base": "git://github.com/elliots/ninja-presence-base",
+    "cli-table": "~0.2.0"
   },
   "license": "MIT",
   "config": {}
