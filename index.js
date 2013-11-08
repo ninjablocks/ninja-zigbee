@@ -183,12 +183,13 @@ ZigbeeDriver.prototype.begin = function() {
           return;
         }
         var table = new Table({
-            head: ['Address', 'Profile ID', 'Device ID', 'Driver'],
-            colWidths: [16,16,16,16]
+            head: ['IEEE', 'Address', 'Profile ID', 'Device ID', 'Driver'],
+            colWidths: [20, 16,16,16,16]
         });
 
         _.each(devices, function(device) {
           table.push([device.address, hex(device.zigbeeDevice.profile)||'', hex(device.zigbeeDevice.id)||'', device.driver||'']);
+          table.push([device._headers.ieeeHex, device.address, hex(device.zigbeeDevice.profile)||'', hex(device.zigbeeDevice.id)||'', device.driver||'']);
         });
         self.log.info('-- ZigBee Devices --\n' + table.toString());
       }
