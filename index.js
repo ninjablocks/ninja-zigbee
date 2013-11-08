@@ -81,7 +81,7 @@ ZigbeeDriver.prototype.begin = function() {
     return;
   }
   // Create a new client
-  var client = new ZigBeeClient();
+  var client = this._client = new ZigBeeClient();
 
   var devices = [];
 
@@ -188,7 +188,6 @@ ZigbeeDriver.prototype.begin = function() {
         });
 
         _.each(devices, function(device) {
-          table.push([device.address, hex(device.zigbeeDevice.profile)||'', hex(device.zigbeeDevice.id)||'', device.driver||'']);
           table.push([device._headers.ieeeHex, device.address, hex(device.zigbeeDevice.profile)||'', hex(device.zigbeeDevice.id)||'', device.driver||'']);
         });
         self.log.info('-- ZigBee Devices --\n' + table.toString());
@@ -197,9 +196,41 @@ ZigbeeDriver.prototype.begin = function() {
   }.bind(this));
 
 
+ZigbeeDriver.prototype.config = function(rpc,cb) {
 
 };
+  var self = this;
 
+  if (!rpc) {
+    return cb(null,{"contents":[
+      { "type": "input_field_select", "field_name": "pairingTime", "label": "Pairing Time", "options": [{ "name": "1 minute", "value": "60", "selected": true}, { "name": "2 minutes", "value": "120"}, { "name": "5 minutes", "value": "300"}, { "name": "10 minutes", "value": "600"}], "required": false },
+      { "type": "submit", "name": "Start Pairing", "rpc_method": "startPairing" }
+    ]});
+  }
+
+  switch (rpc.method) {
+    case 'startPairing':
+      var pairingTime = parseInt(rpc.params.pairingTime, 10);
+      this._client.permitJoin(pairingTime);
+      cb(null, {
+        "contents": [
+          { "type":"paragraph", "text":"Pairing has been enabled for " + pairingTime + " seconds."},
+          { "type":"close", "text":"Close"}
+        ]
+      });
+      setTimeout(function() {
+        self.emit('announcement', {
+          "contents": [
+            { "type":"paragraph", "text":"Zigbee : No longer pairing."},
+            { "type":"close", "text":"Close"}
+          ]
+        });
+      }, pairingTime * 1000);
+      break;
+    default:
+      log('Unknown rpc method', rpc.method, rpc);
+  }
+};
 
 // TODO: move this out of here! into device drivers?
 var mappings = {
