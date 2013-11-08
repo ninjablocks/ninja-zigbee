@@ -116,6 +116,14 @@ Device.prototype.sendCommand = function(command, cb) {
     this.sendMessage(buffer);
 };
 
+// ES: I haven't actually *seen* this work yet, but it might possibly with different devices.
+// This should flash the lights on the device for 'time' seconds.
+Device.prototype.identify = function(time) {
+    this.sendCommand(P.RPCS_IDENTIFY_DEVICE, function(msg) {
+        msg.UInt16LE(time);
+    });
+};
+
 Device.prototype.sendMessage = function(buffer) {
     this._socket.write(buffer);
 };
