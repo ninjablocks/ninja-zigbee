@@ -195,10 +195,11 @@ ZigbeeDriver.prototype.begin = function() {
 
   }.bind(this));
 
+};
+
 
 ZigbeeDriver.prototype.config = function(rpc,cb) {
 
-};
   var self = this;
 
   if (!rpc) {
