@@ -204,7 +204,7 @@ ZigbeeDriver.prototype.config = function(rpc,cb) {
 
   if (!rpc) {
     return cb(null,{"contents":[
-      { "type": "input_field_select", "field_name": "pairingTime", "label": "Pairing Time", "options": [{ "name": "1 minute", "value": "60", "selected": true}, { "name": "2 minutes", "value": "120"}, { "name": "5 minutes", "value": "300"}, { "name": "10 minutes", "value": "600"}], "required": false },
+      { "type": "input_field_select", "field_name": "pairingTime", "label": "Pairing Time", "options": [{ "name": "1 minute", "value": "60", "selected": true}, { "name": "2 minutes", "value": "120"}, { "name": "3 minutes", "value": "180"}, { "name": "4 minutes", "value": "240"}], "required": false },
       { "type": "submit", "name": "Start Pairing", "rpc_method": "startPairing" }
     ]});
   }
