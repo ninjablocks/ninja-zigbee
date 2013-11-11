@@ -18,7 +18,7 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
     this.G = 'zigbee'+headers.ieeeHex.replace(/[^a-zA-Z0-9]/g, '');
     this.name = 'ZigBee ' + zigbeeDevice.name + ' (' + headers.ieeeHex + ')';
 
-    this.log = log4js.getLogger('ZB Device - ' + driverName + ' (' + address + ')');
+    this.log = log4js.getLogger('ZB Device - ' + driverName + ' (' +  headers.ieeeHex + ')');
     this.log.trace('Initialised');
 
     this.on('message', function(address, reader) {
