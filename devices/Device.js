@@ -93,6 +93,21 @@ Device.prototype.hasServerCluster = function(cluster) {
     return false;
 };
 
+/*Device.prototype.discoverAttributes = function() {
+     this.sendCommand(P.SRPC_DISCOVER_ATTRIBUTES, function(msg) {});
+};
+
+Device.prototype.setName = function(name) {
+
+    this.log.info("Setting device name to", name);
+
+    this.sendCommand(P.SRPC_CHANGE_DEVICE_NAME, function(msg) {
+        msg.UInt8(name.length);
+        msg.string(new Buffer(name));
+    });
+
+};*/
+
 Device.prototype.sendCommand = function(command, cb) {
 
     var msg = new BufferMaker();
