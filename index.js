@@ -4,6 +4,21 @@ var Stream = require('stream');
 var spawn = require('child_process').spawn;
 var _ = require('underscore');
 var log4js = require('log4js');
+log4js.configure({
+    appenders: [
+        {
+            type: "console"
+        },
+        {
+          "type": "dateFile",
+          "filename": "zigbee.log",
+          "pattern": "-yyyy-MM-dd",
+          "alwaysIncludePattern": false
+        }
+    ],
+    replaceConsole: false
+});
+
 var Table = require('cli-table');
 
 var DebugDevice = require('./devices/DebugDevice');
@@ -96,7 +111,7 @@ ZigbeeDriver.prototype.begin = function() {
 
     // Create a new connection to the SRPC server: port 0x2be3 for ZLL
     // TODO: incorporate this into the ZigbeeClient
-    this.socket = net.connect(11235,/* '10.37.129.3'*/, function() {
+    this.socket = net.connect(11235, '10.211.55.7', function() {
       this.log.info('Connected to TI ZLL Server');
       setTimeout(function() {
         client.discoverDevices();
@@ -161,6 +176,34 @@ ZigbeeDriver.prototype.begin = function() {
             devices.push(device);
 
             device.coordinator = coordinator;
+            //setTimeout(function() {
+              //device.sendZCL();
+            //}, 2000);
+            /*setTimeout(function() {
+             /// device.setName("HelloNinja");
+              //device.discoverAttributes();
+              var todo = [];
+              for (var i = 0; i < 50; i++) {
+                todo.push((function(x) {
+                  return function() {
+                    device.readAttribute(0x0500, x, function(reader) {
+                      console.log("GOT ATTRIBUTE RESPONSE" + x, 'type', reader.vars.dataType.toString(16), reader.vars);
+
+                    });
+                    setTimeout(next, 500);
+                  }
+                })(i));
+              }
+
+              function next() {
+                if (todo.length) {
+                  (todo.pop())();
+                }
+              }
+              next();
+
+            }, 2000);*/
+            //device.discoverAttributes();
             //device.identify(10);
 
             client.on(address, function(incomingAddress, zigbeeDevice, reader) {
