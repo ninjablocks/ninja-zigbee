@@ -27,7 +27,7 @@ var ZigBeeClient = require('./lib/ZigbeeClient');
 
 
 // Adds extra logging, and attempts to communicate with any unknown devices.
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 // Uses The Faker to create devices that emit random things
 var FAKE_DEVICES = false;
