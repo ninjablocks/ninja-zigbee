@@ -104,6 +104,12 @@
 				<clusterRef name="Groups" />
 			</server>
 		</device>
+
+		<device id="0x0008" name="Range Extender">
+			<server>
+			</server>
+		</device>
+
 		<device id="0x0201" name="Shade Controller">
 			<client>
 				<clusterRef name="On/Off" />
