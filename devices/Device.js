@@ -25,6 +25,17 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
         this.log.debug("Incoming command", P.inverted[reader.vars.command], JSON.stringify(reader.vars));
     }.bind(this));
 
+    // Incoming Read Attribute Response
+    this.onCommand(P.SRPC_READ_ATTRIBUTE_RSP, function(address, reader) {
+        reader
+            .word16lu('clusterId')
+            .word16lu('addressId')
+            .word8('dataType');
+
+        this.log.trace('Incoming read attribute response clusterId', reader.vars.clusterId, 'addressId', reader.vars.addressId);
+        this.emit('read-attribute-response', reader.vars.clusterId, reader.vars.addressId, reader);
+    }.bind(this));
+
 }
 
 Device.prototype.onCommand = function(command, cb) {
@@ -93,11 +104,13 @@ Device.prototype.hasServerCluster = function(cluster) {
     return false;
 };
 
-/*Device.prototype.discoverAttributes = function() {
-     this.sendCommand(P.SRPC_DISCOVER_ATTRIBUTES, function(msg) {});
-};
+/*Device.prototype.discoverAttributes = function(cluster) {
+     this.sendCommand(P.SRPC_DISCOVER_ATTRIBUTES, function(msg) {
+        msg.UInt16LE(cluster);
+     });
+};*/
 
-Device.prototype.setName = function(name) {
+/*Device.prototype.setName = function(name) {
 
     this.log.info("Setting device name to", name);
 
@@ -107,6 +120,28 @@ Device.prototype.setName = function(name) {
     });
 
 };*/
+
+Device.prototype.sendZCL = function() {
+    this.log.info('Sending ZCL');
+    this.sendCommand(P.RPCS_SEND_ZCL, function(msg) {});
+};
+
+Device.prototype.readAttribute = function(clusterId, addressId, cb) {
+
+    this.log.info("Reading attribute. Cluster:", clusterId, "addressId:", addressId);
+
+    this.sendCommand(P.SRPC_READ_ATTRIBUTE, function(msg) {
+        msg.UInt16LE(clusterId);
+        msg.UInt16LE(addressId);
+    });
+
+    this.once('read-attribute-response', function(inClusterId, inAddressId, reader) {
+        if (clusterId == inClusterId && addressId == inAddressId) {
+            cb(reader);
+        }
+    });
+
+};
 
 Device.prototype.sendCommand = function(command, cb) {
 
