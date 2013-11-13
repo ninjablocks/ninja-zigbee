@@ -36,6 +36,10 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
         this.emit('read-attribute-response', reader.vars.clusterId, reader.vars.addressId, reader);
     }.bind(this));
 
+    this.on('data', function(data) {
+        this.log.trace('Data:', JSON.stringify(data));
+    }.bind(this));
+
 }
 
 Device.prototype.onCommand = function(command, cb) {
