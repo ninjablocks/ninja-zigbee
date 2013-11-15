@@ -42,6 +42,7 @@ function IASZone(address, headers, zigbeeDevice, socket) {
         });
 
         this.log.debug('Zone State Parsed : ', state);
+    state.timestamp = new Date().getTime();
 
         this.emit('data', state);
     }.bind(this));
