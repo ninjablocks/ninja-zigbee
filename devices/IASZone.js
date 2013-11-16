@@ -31,21 +31,37 @@ function IASZone(address, headers, zigbeeDevice, socket) {
     this.D = 600; // IAS Zone
 
     this.onCommand(P.RPCS_ZONESTATE_CHANGE, function(address, reader) {
+        this.readState(reader);
+    }.bind(this));
 
-        reader.word16lu('zoneState');
+    setInterval(function() {
+       // this.fetchState();
+    }.bind(this), 30000);
+}
 
-        this.log.debug('Zone State : ', reader.vars.zoneState);
+IASZone.prototype.readState = function(reader) {
 
-        var state = {};
-        reader.vars.zoneState.toString(2).split('').reverse().forEach(function(bit, pos) {
-            state[ZONE_STATE_BITS[pos]] = (bit === '1');
-        });
+    reader.word16lu('zoneState');
 
-        this.log.debug('Zone State Parsed : ', state);
+    this.log.debug('Zone State : ', reader.vars.zoneState);
+
+    var state = {};
+    reader.vars.zoneState.toString(2).split('').reverse().forEach(function(bit, pos) {
+        state[ZONE_STATE_BITS[pos]] = (bit === '1');
+    });
+
     state.timestamp = new Date().getTime();
 
-        this.emit('data', state);
+    this.log.debug('Zone State Parsed : ', state);
+
+    this.emit('data', state);
+};
+
+IASZone.prototype.fetchState = function() {
+    this.readAttribute(0x0500, 0x0002, function(reader) {
+      console.log("GOT ATTRIBUTE RESPONSE", reader.vars.dataType.toString(16), reader.vars);
+      this.readState(reader);
     }.bind(this));
-}
+};
 
 module.exports = IASZone;
