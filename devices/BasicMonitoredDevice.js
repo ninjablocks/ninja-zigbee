@@ -18,6 +18,7 @@ function BasicMonitoredDevice(address, headers, zigbeeDevice, socket) {
 
        var timeout = setTimeout(function() {
         this.emit('data', 0);
+        failed = true;
        }.bind(this), 29000);
 
        this.getBasicInformation(function(reader) {
