@@ -42,6 +42,10 @@ function Device(address, headers, zigbeeDevice, socket, driverName) {
 
 }
 
+Device.prototype.getBasicInformation = function(cb) {
+    this.readAttribute(0x0000, 0x0004, cb);
+};
+
 Device.prototype.onCommand = function(command, cb) {
 
     this.on('message', function(address, reader) {
@@ -108,11 +112,16 @@ Device.prototype.hasServerCluster = function(cluster) {
     return false;
 };
 
-/*Device.prototype.discoverAttributes = function(cluster) {
+Device.prototype.discoverAttributes = function(cluster) {
      this.sendCommand(P.SRPC_DISCOVER_ATTRIBUTES, function(msg) {
         msg.UInt16LE(cluster);
      });
-};*/
+};
+
+Device.prototype.getModelName = function() {
+    this.sendCommand(P.SRPC_GET_DEV_MODEL, function(msg) {
+     });
+};
 
 /*Device.prototype.setName = function(name) {
 
@@ -139,11 +148,17 @@ Device.prototype.readAttribute = function(clusterId, addressId, cb) {
         msg.UInt16LE(addressId);
     });
 
-    this.once('read-attribute-response', function(inClusterId, inAddressId, reader) {
+    var handler = function(inClusterId, inAddressId, reader) {
         if (clusterId == inClusterId && addressId == inAddressId) {
-            cb(reader);
+            this.removeAllListeners('read-attribute-response');
+            if (!reader.vars.zoneState) { // HACK HACK
+                cb(reader);
+            }
+
         }
-    });
+    }.bind(this);
+
+    this.on('read-attribute-response', handler);
 
 };
 
