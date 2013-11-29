@@ -40,35 +40,6 @@ function ZigbeeDriver(opts,app) {
   this._opts = opts;
   this.log = log4js.getLogger('ZB');
 
-  var rpcServer;
-
-  // Spawn the SRPC Server
-  switch (process.platform + process.arch) {
-    case 'darwinx64':
-      rpcServer = spawn(__dirname+'/bin/zbGateway.darwin.bin', ["/dev/tty.usbmodem1431"],  { cwd:__dirname+'/bin/' });
-      break;
-    case 'linuxarm':
-      rpcServer = spawn(__dirname+'/bin/zbGateway.linux.arm.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
-      break;
-    case 'linuxx64':
-      rpcServer = spawn(__dirname+'/bin/zbGateway.linux.x64.bin', ["/dev/ttyACM0"],  { cwd:__dirname+'/bin/' });
-      break;
-    default:
-      throw new Error("The Zigbee Driver only supports linux and osx. Found: " + process.platform + ' - ' + process.arch);
-  }
-
-  rpcServer.stdout.on('data', function (data) {
-    //self.log.debug('rpc: ' + data.toString());
-  });
-
-  rpcServer.stderr.on('data', function (data) {
-    self.log.error('rpc: ' + data);
-  });
-
-  rpcServer.on('close', function (code) {
-    self.log.error('rpc exited with code ' + code);
-  });
-
   this._presence = new PresenceDriver(this._opts, this._app);
 
   // Hack to give the Server time to start
