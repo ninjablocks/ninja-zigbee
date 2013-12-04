@@ -10,7 +10,7 @@ zbDevCdcIdx=0
 for zbDevCdcIdx in 0 1 2 3 4
 do
 	echo "getFwModel from $zbCdcDev$zbDevCdcIdx" >> $zbStartUpLog
-	modelId="$(/opt/ninja/drivers/ninja-zigbee/bin/getFwModel.linux.arm.bin $zbCdcDev$zbDevCdcIdx)"
+	modelId="$(/opt/ninja/drivers/ninja-zigbee/bin/zbFwStart.linux.arm.bin $zbCdcDev$zbDevCdcIdx)"
 
 	if [[ "$modelId" =~ "Model ID" ]]; then
 		zbDev=$zbCdcDev$zbDevCdcIdx
@@ -23,7 +23,7 @@ done
 if [[ -z "$zbDev" ]]; then
 	zbttyDev=/dev/ttyO4
         echo "getFwModel from $zbttyDev" >> $zbStartUpLog
-        modelId="$(/opt/ninja/drivers/ninja-zigbee/bin/getFwModel.linux.arm.bin $zbttyDev)"
+        modelId="$(/opt/ninja/drivers/ninja-zigbee/bin/zbFwStart.linux.arm.bin $zbttyDev)"
 
         if [[ "$modelId" =~ "Model ID" ]]; then
                 zbDev=$zbttyDev
