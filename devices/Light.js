@@ -9,7 +9,7 @@ function Light(address, headers, zigbeeDevice, socket) {
 
     this.writable = true;
     this.V = 0;
-    this.D = 224; // Light
+    this.D = 1010; // Light
 }
 
 Light.prototype.hasLevelControl = function() {
