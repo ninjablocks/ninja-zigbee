@@ -11,7 +11,7 @@ log4js.configure({
         },
         {
           "type": "dateFile",
-          "filename": "zigbee.log",
+          "filename": (process.platform=='linux'?'/var/log/':'')+'ninja-zigbee.log',
           "pattern": "-yyyy-MM-dd",
           "alwaysIncludePattern": false
         }
