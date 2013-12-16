@@ -11,6 +11,8 @@ function Driver(address, headers, zigbeeDevice, socket) {
     this.V = 0;
     this.D = 238; // relay
 
+    this.bindToCluster('On/Off');
+
     Driver.super_.apply(this, arguments);
 }
 
