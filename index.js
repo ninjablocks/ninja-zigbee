@@ -88,9 +88,9 @@ ZigbeeDriver.prototype.begin = function() {
       setTimeout(function() {
         client.discoverDevices();
 
-        setTimeout(function() {
+        /*setTimeout(function() {
           client.permitJoin(180);
-        }, 5000);
+        }, 5000);*/
       }, 1000);
       setInterval(function() {
         //client.discoverDevices();
