@@ -11,7 +11,7 @@ log4js.configure({
         },
         {
           "type": "dateFile",
-          "filename": "zigbee.log",
+          "filename": (process.platform=='linux'?'/var/log/':'')+'ninja-zigbee.log',
           "pattern": "-yyyy-MM-dd",
           "alwaysIncludePattern": false
         }
@@ -88,9 +88,9 @@ ZigbeeDriver.prototype.begin = function() {
       setTimeout(function() {
         client.discoverDevices();
 
-        setTimeout(function() {
+        /*setTimeout(function() {
           client.permitJoin(180);
-        }, 5000);
+        }, 5000);*/
       }, 1000);
       setInterval(function() {
         //client.discoverDevices();
@@ -259,8 +259,8 @@ var mappings = {
 "0xc05e:0x0100","0xc05e:0x0200","0xc05e:0x0210"],
     "Relay" : ["0x0104:0x0009"],
     "Power" : ["0x0104:0x0009"],
-    "Humidity" : ["0x0104:0x0302"],
-    "Temperature" : ["0x0104:0x0302"],
+    "Humidity" : ["0x0104:0x0302", "0x0104:0x03fe"],
+    "Temperature" : ["0x0104:0x0302", "0x0104:0x03fe"],
     "LightSensor" : ["0x0104:0x0106"],
     "OnOffSwitch" : ["0x0104:0x0103", "0x0104:0x0000", "0x0104:0x0001", "0x0104:0x0107"],
     "IASZone" : ["0x0104:0x0402"],
