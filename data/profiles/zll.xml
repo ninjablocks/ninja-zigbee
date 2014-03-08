@@ -27,5 +27,14 @@
             </server>
         </device>
 
+        <device id="0x0210" name="Ext Color Light">
+            <server>
+                <clusterRef name="Basic" />
+                <clusterRef name="On/Off Switch Configuration" />
+                <clusterRef name="Level Control" />
+                <clusterRef name="Color Control" />
+            </server>
+        </device>
+
     </profile>
 </profiles>
