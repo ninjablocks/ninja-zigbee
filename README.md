@@ -12,3 +12,4 @@ If the device is recognized by this driver, it will be exposed via NinjaBlocks o
 
 If the device is *not* recognized, debug information will be printed to your log. Post this information to http://forums.ninjablocks.com and hopefully one of the friendly ninjas will be able to get it working for you.
 
+
